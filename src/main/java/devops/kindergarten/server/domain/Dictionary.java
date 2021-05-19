@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class Dictionary {
     @Id
     @GeneratedValue
-    private Long idx;
+    private Long id;
 
     @Column(name="title")
     private String title;

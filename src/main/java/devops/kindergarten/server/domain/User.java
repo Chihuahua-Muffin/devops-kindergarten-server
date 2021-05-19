@@ -12,12 +12,12 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue
-    private Long idx;
+    private Long id;
 
     // 사용자의 이름
     private String name;
     // 사용자의 id
-    private String id;
+    private String uid;
     // 사용자의 email
     private String email;
 

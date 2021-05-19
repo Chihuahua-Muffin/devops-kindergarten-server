@@ -16,7 +16,7 @@ import java.util.List;
 public class Comment {
     @Id
     @GeneratedValue
-    private Long idx;
+    private Long id;
 
     private String content;
 

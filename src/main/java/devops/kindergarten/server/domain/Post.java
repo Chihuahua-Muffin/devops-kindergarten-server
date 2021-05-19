@@ -22,6 +22,8 @@ public class Post {
 
     private String author;
 
+    private String category;
+
     private int like;
 
     private LocalDateTime createAt;
