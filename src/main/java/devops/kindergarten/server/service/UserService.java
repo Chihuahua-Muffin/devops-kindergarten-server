@@ -30,16 +30,16 @@ public class UserService {
             throw new RuntimeException("이미 가입되어 있는 유저입니다.");
         }
 
-        //빌더 패턴의 장점
         Authority authority = Authority.builder()
-                .authorityName("ROLE_USER")
+                .authorityName(userDto.getStatus().toString())
                 .build();
 
         User user = User.builder()
                 .username(userDto.getUsername())
                 .password(passwordEncoder.encode(userDto.getPassword()))
+                .email(userDto.getEmail())
+                .name(userDto.getName())
                 .authorities(Collections.singleton(authority))
-                .activated(true)
                 .build();
 
         return userRepository.save(user);
