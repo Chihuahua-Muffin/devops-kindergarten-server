@@ -12,7 +12,7 @@ import java.util.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter @Setter
+@Getter
 public class User {
     // User 인덱스
     @Id
