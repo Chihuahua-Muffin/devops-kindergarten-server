@@ -29,7 +29,10 @@ public class UserController {
     ) {
         return ResponseEntity.ok(userService.signup(userDto));
     }
-
+    @GetMapping("/check/{username}")
+    public ResponseEntity<String> check(@PathVariable String username){
+        return ResponseEntity.ok(userService.checkUsername(username));
+    }
     @GetMapping("/user")
     @PreAuthorize("hasAnyRole('STUDENT','EDUCATOR','ADMIN')")
     public ResponseEntity<User> getMyUserInfo() {

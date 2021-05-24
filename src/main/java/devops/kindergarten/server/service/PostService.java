@@ -5,6 +5,7 @@ import devops.kindergarten.server.dto.post.PostListResponseDto;
 import devops.kindergarten.server.dto.post.PostResponseDto;
 import devops.kindergarten.server.dto.post.PostSaveRequestDto;
 import devops.kindergarten.server.dto.post.PostUpdateRequestDto;
+import devops.kindergarten.server.exception.custom.PostNotFoundException;
 import devops.kindergarten.server.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class PostService {
     @Transactional
     public Long update(Long id, PostUpdateRequestDto requestDto){
         Post post = postRepository.findById(id)
-                .orElseThrow(()-> new IllegalArgumentException("해당 게시글이 없습니다. id="+id));
+                .orElseThrow(()-> new PostNotFoundException("해당 게시글이 없습니다. id="+id));
         post.update(requestDto.getTitle(), requestDto.getContent(),requestDto.getCategory());
 
         return id;
@@ -34,7 +35,7 @@ public class PostService {
 
     public PostResponseDto findById(Long id){
         Post entity = postRepository.findById(id)
-                .orElseThrow(()->new IllegalArgumentException("해당 게시글이 없습니다. id="+id));
+                .orElseThrow(()->new PostNotFoundException("해당 게시글이 없습니다. id="+id));
         return new PostResponseDto(entity);
     }
 
@@ -60,7 +61,7 @@ public class PostService {
     @Transactional
     public void delete(Long id){
         Post post = postRepository.findById(id)
-                .orElseThrow(()->new IllegalArgumentException("해당 게시글이 없습니다. id="+id));
+                .orElseThrow(()->new PostNotFoundException("해당 id의 post 가 존재하지 않습니다."));
         postRepository.delete(post);
     }
 

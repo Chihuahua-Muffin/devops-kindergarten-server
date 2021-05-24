@@ -1,6 +1,7 @@
 package devops.kindergarten.server.service;
 
 import devops.kindergarten.server.domain.User;
+import devops.kindergarten.server.exception.custom.LoginException;
 import devops.kindergarten.server.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -23,10 +24,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(final String name) {
-        return userRepository.findOneWithAuthoritiesByUsername(name)
-                .map(user -> createUser(name, user))
-                .orElseThrow(() -> new UsernameNotFoundException(name + " -> 데이터베이스에서 찾을 수 없습니다."));
+    public UserDetails loadUserByUsername(final String username) {
+        return userRepository.findOneWithAuthoritiesByUsername(username)
+                .map(user -> createUser(username, user))
+                .orElseThrow(() -> new LoginException(username + " -> 데이터베이스에서 찾을 수 없습니다."));
     }
 
     private org.springframework.security.core.userdetails.User createUser(String username, User user) {

@@ -3,6 +3,7 @@ package devops.kindergarten.server.service;
 import devops.kindergarten.server.domain.Authority;
 import devops.kindergarten.server.domain.User;
 import devops.kindergarten.server.dto.UserDto;
+import devops.kindergarten.server.exception.custom.SignUpException;
 import devops.kindergarten.server.repository.UserRepository;
 import devops.kindergarten.server.util.SecurityUtil;
 import org.springframework.stereotype.Service;
@@ -23,11 +24,18 @@ public class UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
+    @Transactional(readOnly = true)
+    public String checkUsername(String username){
+        if (userRepository.findOneWithAuthoritiesByUsername(username).orElse(null) != null) {
+            throw new SignUpException("이미 가입한 회원이 있습니다.");
+        }
+        return "사용 가능한 아이디 입니다.";
+    }
 
     @Transactional
     public User signup(UserDto userDto) {
         if (userRepository.findOneWithAuthoritiesByUsername(userDto.getUsername()).orElse(null) != null) {
-            throw new RuntimeException("이미 가입되어 있는 유저입니다.");
+            throw new SignUpException("이미 가입한 회원이 있습니다.");
         }
 
         Authority authority = Authority.builder()
