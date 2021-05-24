@@ -48,6 +48,6 @@ public class Post {
         this.title = title;
         this.content = content;
         this.category = category;
-        updatedDate = LocalDateTime.now();
+        this.updatedDate = LocalDateTime.now();
     }
 }
