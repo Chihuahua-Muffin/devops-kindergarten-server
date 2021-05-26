@@ -5,6 +5,8 @@ import devops.kindergarten.server.domain.Post;
 import devops.kindergarten.server.domain.User;
 import devops.kindergarten.server.dto.comment.CommentResponseDto;
 import devops.kindergarten.server.dto.comment.CommentSaveRequestDto;
+import devops.kindergarten.server.dto.comment.CommentUpdateRequestDto;
+import devops.kindergarten.server.dto.comment.RecommentSaveRequestDto;
 import devops.kindergarten.server.dto.post.PostListResponseDto;
 import devops.kindergarten.server.dto.post.PostResponseDto;
 import devops.kindergarten.server.exception.custom.CommentNotFoundException;
@@ -17,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,9 +40,19 @@ public class CommentService {
         Comment comment = requestDto.toEntity(user,post);
         return commentRepository.save(comment).getId();
     }
-
     @Transactional
-    public Long update(Long id, CommentSaveRequestDto requestDto){
+    public Long save(RecommentSaveRequestDto requestDto){
+        User user = userRepository.findOneWithAuthoritiesByUsername(requestDto.getUsername())
+                .orElseThrow(()->new UsernameNotFoundException("해당 유저가 존재하지 않습니다."));
+        Post post = postRepository.findById(requestDto.getPostId())
+                .orElseThrow(()->new PostNotFoundException("해당 게시글을 찾을 수 없습니다."));
+        Comment parent = commentRepository.findById(requestDto.getParentId())
+                .orElseThrow(()->new CommentNotFoundException("해당 덧글을 찾을 수 없습니다."));
+        Comment comment = requestDto.toEntity(user,post,parent);
+        return commentRepository.save(comment).getId();
+    }
+    @Transactional
+    public Long update(Long id, CommentUpdateRequestDto requestDto){
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(()-> new CommentNotFoundException("해당 댓글 없습니다. id="+id));
         comment.update(requestDto.getContent());
@@ -47,11 +60,34 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<CommentResponseDto> findAllByPostId(int postId){
-        return commentRepository.findAll().stream()
-                .map(CommentResponseDto::new)
-                .collect(Collectors.toList());
+    public List<CommentResponseDto> findAllByPostId(Long postId){
+        List<CommentResponseDto> result = new ArrayList<>();
+        List<Comment> commentList = commentRepository.findAllByPostId(postId);
+        for (Comment comment : commentList) {
+            if (comment.getParent() == null) {
+                result.add(new CommentResponseDto(comment));
+            }
+        }
+        for (CommentResponseDto commentResponseDto : result) {
+            for (Comment comment : commentList) {
+                if(comment.getParent()!=null){
+                    if (commentResponseDto.getId().equals(comment.getParent().getId())) {
+                        commentResponseDto.getRecommentList().add(new CommentResponseDto(comment));
+                    }
+                }
+            }
+        }
+        return result;
     }
-
-
+    @Transactional(readOnly = true)
+    public List<CommentResponseDto> findAllByUserId(Long userId){
+        return commentRepository.findAllByWriterId(userId).stream()
+                .map(CommentResponseDto::new).collect(Collectors.toList());
+    }
+    @Transactional
+    public void delete(Long id){
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(()->new CommentNotFoundException("해당 덧글이 존재하지 않습니다."));
+        commentRepository.delete(comment);
+    }
 }

@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 public class CommentResponseDto {
@@ -13,6 +15,7 @@ public class CommentResponseDto {
     private int like;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
+    private List<CommentResponseDto> recommentList = new ArrayList<>();
 
     public CommentResponseDto(Comment entity) {
         this.id = entity.getId();

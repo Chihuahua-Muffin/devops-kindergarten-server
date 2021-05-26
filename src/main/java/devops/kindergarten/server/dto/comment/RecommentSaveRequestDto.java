@@ -9,21 +9,21 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class CommentSaveRequestDto {
+public class RecommentSaveRequestDto {
     private String content;
     private String username;
     private Long postId;
+    private Long parentId;
 
     @Builder
-    public CommentSaveRequestDto(String content, String username, Long postId){
+    public RecommentSaveRequestDto(String content, String username, Long postId, Long parentId){
         this.content = content;
         this.username = username;
         this.postId = postId;
+        this.parentId = parentId;
     }
 
-    public Comment toEntity(User writer,Post post){
-        return Comment.createComment(writer,post,content,username);
+    public Comment toEntity(User writer,Post post,Comment parent){
+        return Comment.createChildComment(writer,post,parent,content,username);
     }
-
 }
-
