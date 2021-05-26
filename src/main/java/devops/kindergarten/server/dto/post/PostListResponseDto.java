@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 public class PostListResponseDto {
     private Long id;
     private String title;
-    private String author;
+    private String username;
     private String category;
     private LocalDateTime createDate;
 
     public PostListResponseDto(Post entity){
         this.id = entity.getId();
         this.title = entity.getTitle();
-        this.author = entity.getAuthor();
+        this.username = entity.getUsername();
         this.category = entity.getCategory();
         this.createDate = entity.getCreatedDate();
     }

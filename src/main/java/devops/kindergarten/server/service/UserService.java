@@ -24,6 +24,7 @@ public class UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
+
     @Transactional(readOnly = true)
     public String checkUsername(String username){
         if (userRepository.findOneWithAuthoritiesByUsername(username).orElse(null) != null) {

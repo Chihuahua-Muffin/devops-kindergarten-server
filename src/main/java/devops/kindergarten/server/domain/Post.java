@@ -4,9 +4,11 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Getter
+@Getter @Setter
 @NoArgsConstructor
 @Table(name="post")
 public class Post {
@@ -21,11 +23,16 @@ public class Post {
     @Column(name = "content",nullable = false,columnDefinition = "TEXT")
     private String content;
 
-    @Column(nullable = false)
-    private String author;
+    @Column(name = "username",nullable = false)
+    private String username;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User author;
 
     @Column(nullable = false)
     private String category;
+
     @Column(name="like_count")
     private int like;
 
@@ -33,17 +40,29 @@ public class Post {
 
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
-    @Builder
-    public Post(String title,String content,String author,String category){
-        this.title = title;
-        this.content = content;
+
+    @OneToMany(mappedBy = "post")
+    private List<Comment> commentList = new ArrayList<>();
+
+    private void setAuthor(User author){
         this.author = author;
-        this.category = category;
-        this.like = 0;
-        this.hit = 0;
-        this.createdDate = this.updatedDate = LocalDateTime.now();
+        author.getPostList().add(this);
     }
 
+    public static Post createPost(User author,String title,String content,String username,String category){
+        Post post = new Post();
+        LocalDateTime now = LocalDateTime.now();
+
+        post.setAuthor(author);
+        post.setTitle(title);
+        post.setContent(content);
+        post.setCategory(category);
+        post.setUsername(username);
+        post.setCreatedDate(now);
+        post.setUpdatedDate(now);
+
+        return post;
+    }
     public void update(String title,String content,String category){
         this.title = title;
         this.content = content;

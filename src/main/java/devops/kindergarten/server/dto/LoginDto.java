@@ -8,11 +8,15 @@ import lombok.Setter;
 import javax.validation.constraints.NotNull;
 
 @Data
-@AllArgsConstructor
 public class LoginDto {
     @NotNull
     private String username;
 
     @NotNull
     private String password;
+
+    public LoginDto(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 }
