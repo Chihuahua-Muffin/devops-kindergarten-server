@@ -1,13 +1,12 @@
 package devops.kindergarten.server.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class LoginDto {
     @NotNull
     private String username;

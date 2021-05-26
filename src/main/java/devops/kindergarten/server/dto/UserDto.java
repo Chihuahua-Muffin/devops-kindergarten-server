@@ -3,18 +3,15 @@ package devops.kindergarten.server.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import devops.kindergarten.server.domain.Status;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-
-@AllArgsConstructor
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class UserDto {
     @Size(min = 6)
     private String username;
@@ -28,4 +25,12 @@ public class UserDto {
     private String password;
 
     private String status;
+
+    public UserDto(String username, String name, String email, String password, String status) {
+        this.username = username;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.status = status;
+    }
 }
