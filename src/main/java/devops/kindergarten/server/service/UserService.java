@@ -4,8 +4,10 @@ import devops.kindergarten.server.domain.Authority;
 import devops.kindergarten.server.domain.User;
 import devops.kindergarten.server.dto.UserDto;
 import devops.kindergarten.server.exception.custom.SignUpException;
+import devops.kindergarten.server.exception.custom.UserNotFoundException;
 import devops.kindergarten.server.repository.UserRepository;
 import devops.kindergarten.server.util.SecurityUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,14 +18,10 @@ import java.util.Collections;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
 
     @Transactional(readOnly = true)
     public String checkUsername(String username){
@@ -33,6 +31,12 @@ public class UserService {
         return "사용 가능한 아이디 입니다.";
     }
 
+    @Transactional(readOnly = true)
+    public boolean validatePassword(String username,String password){
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(()->new UserNotFoundException("해당 유저를 찾을 수 없습니다."));
+        return passwordEncoder.matches(password,user.getPassword());
+    }
     @Transactional
     public User signup(UserDto userDto) {
         if (userRepository.findOneWithAuthoritiesByUsername(userDto.getUsername()).orElse(null) != null) {
