@@ -4,10 +4,6 @@ import devops.kindergarten.server.dto.comment.CommentResponseDto;
 import devops.kindergarten.server.dto.comment.CommentSaveRequestDto;
 import devops.kindergarten.server.dto.comment.CommentUpdateRequestDto;
 import devops.kindergarten.server.dto.comment.RecommentSaveRequestDto;
-import devops.kindergarten.server.dto.post.PostListResponseDto;
-import devops.kindergarten.server.dto.post.PostResponseDto;
-import devops.kindergarten.server.dto.post.PostSaveRequestDto;
-import devops.kindergarten.server.dto.post.PostUpdateRequestDto;
 import devops.kindergarten.server.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -45,8 +41,12 @@ public class CommentController {
         return commentService.findAllByPostId(postId);
     }
 
-    @GetMapping("/api/comments/{userId}")
-    public List<CommentResponseDto> findAllByUserId(@PathVariable Long userId){
-        return commentService.findAllByUserId(userId);
+//    @GetMapping("/api/comments/{userId}")
+//    public List<CommentResponseDto> findAllByUserId(@PathVariable Long userId){
+//        return commentService.findAllByUserId(userId);
+//    }
+    @GetMapping("/api/comments/{username}")
+    public List<CommentResponseDto> findAllByUserId(@PathVariable String username){
+        return commentService.findAllByUsername(username);
     }
 }

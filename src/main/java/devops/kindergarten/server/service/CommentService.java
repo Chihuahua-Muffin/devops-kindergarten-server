@@ -90,4 +90,9 @@ public class CommentService {
                 .orElseThrow(()->new CommentNotFoundException("해당 덧글이 존재하지 않습니다."));
         commentRepository.delete(comment);
     }
+    @Transactional(readOnly = true)
+    public List<CommentResponseDto> findAllByUsername(String username){
+        return commentRepository.findAllByUsername(username).stream()
+                .map(CommentResponseDto::new).collect(Collectors.toList());
+    }
 }
