@@ -27,7 +27,7 @@ public class Dictionary {
     @Column(nullable = false)
     private String description;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> tagList = new ArrayList<>();
 
     @Builder

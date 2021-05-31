@@ -2,11 +2,13 @@ package devops.kindergarten.server.dto.dictionary;
 
 import devops.kindergarten.server.domain.Dictionary;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@NoArgsConstructor
 public class DictionaryResponseDto {
     private Long id;
     private String wordEnglish;

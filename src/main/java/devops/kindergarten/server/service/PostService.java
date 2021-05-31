@@ -39,20 +39,15 @@ public class PostService {
 
         return id;
     }
-
+    @Transactional
     public PostResponseDto findById(Long id){
         Post entity = postRepository.findById(id)
                 .orElseThrow(()->new PostNotFoundException("해당 게시글이 없습니다. id="+id));
-
+        entity.setHit(entity.getHit()+1);
+        postRepository.save(entity);
         return new PostResponseDto(entity);
     }
 
-    @Transactional(readOnly = true)
-    public List<PostListResponseDto> findAllDesc(){
-        return postRepository.findAllDesc().stream()
-                .map(PostListResponseDto::new)
-                .collect(Collectors.toList());
-    }
     @Transactional(readOnly = true)
     public List<PostListResponseDto> findAllByCategoryAndLimitAndOffset(String category, int offset){
         return postRepository.findAllByCategoryCustomQuery(category,offset).stream()

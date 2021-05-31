@@ -15,6 +15,7 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
 
+
     @PostMapping("/api/post")
     public Long save(@RequestBody PostSaveRequestDto requestDto){
         return postService.save(requestDto);
@@ -36,11 +37,12 @@ public class PostController {
         return id;
     }
 
-    @GetMapping("/api/post")
-    public List<PostListResponseDto> findAllByCategoryAndLimitAndOffset(@RequestParam String category, @RequestParam int offset){
+    // category 해당하는 글을 offset(글 페이지)에 맞춰서 10개씩 반환해준다.
+    @GetMapping("/api/posts/{category}")
+    public List<PostListResponseDto> findAllByCategoryAndLimitAndOffset(@PathVariable String category, @RequestParam int offset){
         return postService.findAllByCategoryAndLimitAndOffset(category,offset);
     }
-
+    // category 에 상관 없이 글을 offset(글 페이지)에 맞춰서 10개씩 반환해준다.
     @GetMapping("/api/posts")
     public List<PostListResponseDto> findAllByLimitAndOffset(@RequestParam int offset){
         return postService.findAllByLimitAndOffset(offset);

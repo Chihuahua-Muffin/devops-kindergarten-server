@@ -40,4 +40,9 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorInfo> loginHandler(HttpServletRequest request, final RuntimeException e) {
         return error(e, HttpStatus.BAD_REQUEST, request);
     }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorInfo> userNotFoundHandler(HttpServletRequest request, final RuntimeException e) {
+        return error(e, HttpStatus.BAD_REQUEST, request);
+    }
 }

@@ -3,10 +3,12 @@ package devops.kindergarten.server.dto.dictionary;
 import devops.kindergarten.server.domain.Dictionary;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Getter
+@NoArgsConstructor
 public class DictionaryRequestDto {
     private String wordEnglish;
     private String wordKorean;

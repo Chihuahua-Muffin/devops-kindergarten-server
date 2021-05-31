@@ -23,7 +23,7 @@ public class Comment {
 
 
     @Column(name="like_count")
-    private int like;
+    private Integer like;
 
     private String username;
 

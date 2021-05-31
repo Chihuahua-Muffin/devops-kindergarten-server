@@ -12,13 +12,13 @@ public class PostListResponseDto {
     private String title;
     private String username;
     private String category;
-    private LocalDateTime createDate;
+    private String createDate;
 
     public PostListResponseDto(Post entity){
         this.id = entity.getId();
         this.title = entity.getTitle();
         this.username = entity.getUsername();
         this.category = entity.getCategory();
-        this.createDate = entity.getCreatedDate();
+        this.createDate = entity.getCreatedDate().toString();
     }
 }

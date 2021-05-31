@@ -1,11 +1,15 @@
 package devops.kindergarten.server.dto.post;
 
 import devops.kindergarten.server.domain.Post;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
+@NoArgsConstructor
 public class PostResponseDto {
     private Long id;
     private String title;
@@ -14,8 +18,8 @@ public class PostResponseDto {
     private String category;
     private int like;
     private int hit;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
+    private String createdDate;
+    private String updatedDate;
 
     public PostResponseDto(Post entity) {
         this.id = entity.getId();
@@ -25,7 +29,7 @@ public class PostResponseDto {
         this.category = entity.getCategory();
         this.like = entity.getLike();
         this.hit = entity.getHit();
-        this.createdDate = entity.getCreatedDate();
-        this.updatedDate = entity.getUpdatedDate();
+        this.createdDate = entity.getCreatedDate().toString();
+        this.updatedDate = entity.getUpdatedDate().toString();
     }
 }

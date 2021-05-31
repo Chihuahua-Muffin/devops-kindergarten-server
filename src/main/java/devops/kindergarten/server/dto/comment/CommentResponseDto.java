@@ -13,15 +13,15 @@ public class CommentResponseDto {
     private Long id;
     private String content;
     private int like;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
+    private String createdDate;
+    private String updatedDate;
     private List<CommentResponseDto> recommentList = new ArrayList<>();
 
     public CommentResponseDto(Comment entity) {
         this.id = entity.getId();
         this.content = entity.getContent();
         this.like = entity.getLike();
-        this.createdDate = entity.getCreatedDate();
-        this.updatedDate = entity.getUpdatedDate();
+        this.createdDate = entity.getCreatedDate().toString();
+        this.updatedDate = entity.getUpdatedDate().toString();
     }
 }
