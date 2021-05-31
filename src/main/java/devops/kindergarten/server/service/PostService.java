@@ -61,6 +61,7 @@ public class PostService {
                 .map(PostListResponseDto::new)
                 .collect(Collectors.toList());
     }
+
     @Transactional
     public void delete(Long id){
         Post post = postRepository.findById(id)
@@ -68,4 +69,10 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    @Transactional(readOnly = true)
+    public List<PostListResponseDto> searchByTitleOrContent(String keyword) {
+        return postRepository.searchByTitleOrContent(keyword).stream()
+                .map(PostListResponseDto::new)
+                .collect(Collectors.toList());
+    }
 }

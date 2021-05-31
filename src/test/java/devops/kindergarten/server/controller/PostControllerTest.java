@@ -23,6 +23,8 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URI;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class PostControllerTest {
@@ -172,5 +174,23 @@ class PostControllerTest {
             Assertions.assertThat(result.getBody().get(9-i).toString().contains("title"+i));
             Assertions.assertThat(result.getBody().get(9-i).toString().contains("develop"+i));
         }
+    }
+
+    @Test
+    public void 글_검색_테스트() throws Exception{
+        //given
+        User user = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
+        String title = "제목";
+        String content = "내용";
+        String category = "develop";
+        createPost(title,content,category,user);
+
+        //when
+        List<Post> result_title = postRepository.searchByTitleOrContent(title);
+        List<Post> result_content = postRepository.searchByTitleOrContent(content);
+
+        //then
+        assertTrue(result_title.get(0).getTitle().contains(title));
+        assertTrue(result_content.get(0).getContent().contains(content));
     }
 }

@@ -3,6 +3,7 @@ package devops.kindergarten.server.controller;
 import devops.kindergarten.server.dto.dictionary.DictionaryRequestDto;
 import devops.kindergarten.server.dto.dictionary.DictionaryResponseDto;
 import devops.kindergarten.server.dto.post.PostResponseDto;
+import devops.kindergarten.server.exception.custom.DictionaryNotFoundException;
 import devops.kindergarten.server.service.DictionaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +34,9 @@ public class DictionaryController {
         return dictionaryService.findAllByCustomQuery(offset);
     }
 
-    @GetMapping("api/dictionary/search")
-    public List<DictionaryResponseDto> search(@RequestParam(value = "keword") String keword) {
-        return dictionaryService.searchByValue(keword);
+    @GetMapping("api/dictionaries/search")
+    public List<DictionaryResponseDto> search(@RequestParam(value = "keyword") String keyword) {
+        if(keyword.equals("")) throw new DictionaryNotFoundException("keyword 값이 공백입니다.");
+        return dictionaryService.searchByValue(keyword);
     }
 }

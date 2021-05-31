@@ -11,7 +11,6 @@ public interface DictionaryRepository extends JpaRepository<Dictionary,Long> {
     List<Dictionary> findAllByCustomQuery(int offset);
 
     // 태그리스트 제외하고 검색
-    @Query(value = "SELECT d from Dictionary d WHERE d.description LIKE %:keyword%" +
-            " OR d.wordKorean LIKE %:keyword% OR d.wordEnglish LIKE %:keyword%")
+    @Query(value = "SELECT d from Dictionary d WHERE d.wordKorean LIKE %:keyword% OR d.wordEnglish LIKE %:keyword%")
     List<Dictionary> searchByValue(String keyword);
 }

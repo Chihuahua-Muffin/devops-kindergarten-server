@@ -1,10 +1,8 @@
 package devops.kindergarten.server.service;
 
 import devops.kindergarten.server.domain.Dictionary;
-import devops.kindergarten.server.domain.Post;
 import devops.kindergarten.server.dto.dictionary.DictionaryRequestDto;
 import devops.kindergarten.server.dto.dictionary.DictionaryResponseDto;
-import devops.kindergarten.server.dto.post.PostSaveRequestDto;
 import devops.kindergarten.server.exception.custom.DictionaryNotFoundException;
 import devops.kindergarten.server.repository.DictionaryRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,8 +41,8 @@ public class DictionaryService {
                 .stream().map(DictionaryResponseDto::new).collect(Collectors.toList());
     }
     @Transactional(readOnly = true)
-    public List<DictionaryResponseDto> searchByValue(String keword){
-        return dictionaryRepository.searchByValue(keword)
+    public List<DictionaryResponseDto> searchByValue(String keyword){
+        return dictionaryRepository.searchByValue(keyword)
                 .stream().map(DictionaryResponseDto::new).collect(Collectors.toList());
     }
 }

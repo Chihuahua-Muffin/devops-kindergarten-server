@@ -4,6 +4,8 @@ import devops.kindergarten.server.dto.post.PostListResponseDto;
 import devops.kindergarten.server.dto.post.PostResponseDto;
 import devops.kindergarten.server.dto.post.PostSaveRequestDto;
 import devops.kindergarten.server.dto.post.PostUpdateRequestDto;
+import devops.kindergarten.server.exception.custom.DictionaryNotFoundException;
+import devops.kindergarten.server.exception.custom.PostNotFoundException;
 import devops.kindergarten.server.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostController {
     private final PostService postService;
-
 
     @PostMapping("/api/post")
     public Long save(@RequestBody PostSaveRequestDto requestDto){
@@ -46,6 +47,12 @@ public class PostController {
     @GetMapping("/api/posts")
     public List<PostListResponseDto> findAllByLimitAndOffset(@RequestParam int offset){
         return postService.findAllByLimitAndOffset(offset);
+    }
+
+    @GetMapping("/api/posts/search")
+    public List<PostListResponseDto> searchByTitleOrContent(@RequestParam(value = "tc") String tc) {
+        if(tc.equals("")) throw new PostNotFoundException("검색 값이 공백입니다.");
+        return postService.searchByTitleOrContent(tc);
     }
 }
 
