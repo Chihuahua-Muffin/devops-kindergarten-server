@@ -42,4 +42,9 @@ public class DictionaryService {
         return dictionaryRepository.findAllByCustomQuery(offset)
                 .stream().map(DictionaryResponseDto::new).collect(Collectors.toList());
     }
+    @Transactional(readOnly = true)
+    public List<DictionaryResponseDto> searchByValue(String keword){
+        return dictionaryRepository.searchByValue(keword)
+                .stream().map(DictionaryResponseDto::new).collect(Collectors.toList());
+    }
 }

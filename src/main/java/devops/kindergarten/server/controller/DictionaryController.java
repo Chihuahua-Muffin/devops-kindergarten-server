@@ -2,6 +2,7 @@ package devops.kindergarten.server.controller;
 
 import devops.kindergarten.server.dto.dictionary.DictionaryRequestDto;
 import devops.kindergarten.server.dto.dictionary.DictionaryResponseDto;
+import devops.kindergarten.server.dto.post.PostResponseDto;
 import devops.kindergarten.server.service.DictionaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -30,5 +31,10 @@ public class DictionaryController {
     @GetMapping("/api/dictionaries")
     public List<DictionaryResponseDto> findAllDesc(@RequestParam int offset){
         return dictionaryService.findAllByCustomQuery(offset);
+    }
+
+    @GetMapping("api/dictionary/search")
+    public List<DictionaryResponseDto> search(@RequestParam(value = "keword") String keword) {
+        return dictionaryService.searchByValue(keword);
     }
 }

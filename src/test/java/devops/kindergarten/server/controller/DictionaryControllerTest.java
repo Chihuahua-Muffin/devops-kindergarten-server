@@ -3,12 +3,15 @@ package devops.kindergarten.server.controller;
 import devops.kindergarten.server.domain.Dictionary;
 import devops.kindergarten.server.dto.dictionary.DictionaryRequestDto;
 import devops.kindergarten.server.dto.dictionary.DictionaryResponseDto;
+import devops.kindergarten.server.dto.post.PostResponseDto;
 import devops.kindergarten.server.repository.DictionaryRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
@@ -17,6 +20,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
@@ -143,5 +147,33 @@ class DictionaryControllerTest {
             assertTrue(result.getBody().get(9 - i).toString().contains(wordKorean + i));
             assertTrue(result.getBody().get(9 - i).toString().contains(description + i));
         }
+    }
+
+    @Test
+    public void 사전_검색_테스트() throws Exception{
+        //given
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://localhost:" + port + "/api/dictionary/search";
+        String keword = "도커";
+        URI uri = new URI(url);
+
+        String wordEnglish = "docker";
+        String wordKorean = "도커";
+        String description = "도커는 어떻게 사용할까요??";
+        List<String> tagList = new ArrayList<>();
+        tagList.add("Devops");
+        tagList.add("Docker");
+        tagList.add("Cloud");
+        createDictionary(wordEnglish,wordKorean,description,tagList);
+
+        //when
+        List<Dictionary> result_key = dictionaryRepository.searchByValue(keword);
+        List<Dictionary> result_eng = dictionaryRepository.searchByValue(wordEnglish);
+        List<Dictionary> result_kor = dictionaryRepository.searchByValue(wordKorean);
+
+        // then
+        assertTrue(result_key.get(0).getDescription().contains(keword));
+        assertTrue(result_eng.get(0).getWordEnglish().contains(wordEnglish));
+        assertTrue(result_kor.get(0).getWordKorean().contains(wordKorean));
     }
 }
