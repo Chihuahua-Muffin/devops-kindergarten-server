@@ -55,10 +55,10 @@ public class User {
 
     // 본인이 좋아요를 누를 post와 comment의 인덱스를 저장하는 리스트
     @ElementCollection
-    private List<Long> postLikeIdList = new ArrayList<>();
+    private Set<Long> postLikeIdList = new HashSet<>();
 
     @ElementCollection
-    private List<Long> commentLikeIdList = new ArrayList<>();
+    private Set<Long> commentLikeIdList = new HashSet<>();
 
 
     public User(String subject, Collection<? extends GrantedAuthority> authorities) {
