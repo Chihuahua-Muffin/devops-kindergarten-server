@@ -45,4 +45,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorInfo> userNotFoundHandler(HttpServletRequest request, final RuntimeException e) {
         return error(e, HttpStatus.BAD_REQUEST, request);
     }
+    @ExceptionHandler(LectureNotFoundException.class)
+    public ResponseEntity<ErrorInfo> lectureNotFoundHandler(HttpServletRequest request, final RuntimeException e) {
+        return error(e, HttpStatus.BAD_REQUEST, request);
+    }
+    @ExceptionHandler(ImageNotFoundException.class)
+    public ResponseEntity<ErrorInfo> imageNotFoundHandler(HttpServletRequest request, final RuntimeException e) {
+        return error(e, HttpStatus.BAD_REQUEST, request);
+    }
 }

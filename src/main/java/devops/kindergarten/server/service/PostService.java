@@ -98,7 +98,7 @@ public class PostService {
         postRepository.save(post);
         return new PostLikeResponseDto(!viewerHasLike,likeCount);
     }
-  
+
     @Transactional(readOnly = true)
     public List<PostListResponseDto> searchByTitleOrContent(String keyword) {
         return postRepository.searchByTitleOrContent(keyword).stream()

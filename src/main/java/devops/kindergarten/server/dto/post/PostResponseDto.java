@@ -18,6 +18,7 @@ public class PostResponseDto {
     private String category;
     private int likeCount;
     private int hit;
+
     private boolean viewerHasLike;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;

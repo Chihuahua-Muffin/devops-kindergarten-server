@@ -16,7 +16,6 @@ public interface PostRepository extends JpaRepository<Post,Long> {
     @Query(value = "SELECT * from Post p ORDER BY p.post_id desc LIMIT 10 OFFSET :offset", nativeQuery = true)
     List<Post> findAllByCustomQuery(@Param("offset") int offset);
 
-
     @Query(value = "SELECT p from Post p WHERE p.title LIKE %:tc% OR p.content LIKE %:tc%")
-    List<Post> searchByTitleOrContent(String tc);
+    List<Post> searchByTitleOrContent(@Param("tc") String tc);
 }
