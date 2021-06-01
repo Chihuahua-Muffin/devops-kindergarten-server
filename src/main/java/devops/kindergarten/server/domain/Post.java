@@ -34,7 +34,7 @@ public class Post {
     private String category;
 
     @Column(name="like_count")
-    private int like;
+    private int likeCount;
 
     private int hit;
 

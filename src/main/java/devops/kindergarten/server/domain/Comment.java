@@ -23,7 +23,7 @@ public class Comment {
 
 
     @Column(name="like_count")
-    private Integer like;
+    private int likeCount;
 
     private String username;
 
@@ -65,7 +65,7 @@ public class Comment {
         comment.setPost(post);
         comment.setContent(content);
         comment.setUsername(username);
-        comment.setLike(0);
+        comment.setLikeCount(0);
         comment.setCreatedDate(now);
         comment.setUpdatedDate(now);
 
@@ -80,7 +80,7 @@ public class Comment {
         comment.setPost(post);
         comment.setContent(content);
         comment.setUsername(username);
-        comment.setLike(0);
+        comment.setLikeCount(0);
         comment.setCreatedDate(now);
         comment.setUpdatedDate(now);
         comment.setParent(parent);
