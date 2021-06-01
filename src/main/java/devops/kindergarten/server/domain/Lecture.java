@@ -3,13 +3,15 @@ package devops.kindergarten.server.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter
+@Getter @Setter
 @NoArgsConstructor
 @Table(name="lecture")
 public class Lecture {
@@ -21,25 +23,25 @@ public class Lecture {
     @Column(nullable = false)
     private String title;
 
-    @Column()
-    private String thumbnail;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_id")
+    private ImageFile thumbnail;
 
     @Column(nullable = false)
     private String description;
 
-    //오류나면 바꾸기
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> tagList = new ArrayList<>();
 
     @Builder
-    public Lecture(String title, String thumbnail, String description, List<String> tagList) {
+    public Lecture(String title, ImageFile thumbnail, String description, List<String> tagList) {
         this.title = title;
         this.thumbnail = thumbnail;
         this.description = description;
         this.tagList = tagList;
     }
 
-    public void update(String title, String thumbnail, String description, List<String> tagList) {
+    public void update(String title, ImageFile thumbnail, String description, List<String> tagList) {
         this.title = title;
         this.thumbnail = thumbnail;
         this.description = description;

@@ -17,5 +17,5 @@ public interface PostRepository extends JpaRepository<Post,Long> {
     List<Post> findAllByCustomQuery(@Param("offset") int offset);
 
     @Query(value = "SELECT p from Post p WHERE p.title LIKE %:tc% OR p.content LIKE %:tc%")
-    List<Post> searchByTitleOrContent(String tc);
+    List<Post> searchByTitleOrContent(@Param("tc") String tc);
 }
