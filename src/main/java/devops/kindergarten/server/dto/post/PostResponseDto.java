@@ -19,8 +19,8 @@ public class PostResponseDto {
     private int likeCount;
     private int hit;
     private boolean viewerHasLike;
-    private String createdDate;
-    private String updatedDate;
+    private LocalDateTime createdDate;
+    private LocalDateTime updatedDate;
 
     /*public PostResponseDto(Post entity) {
         this.id = entity.getId();
@@ -43,7 +43,7 @@ public class PostResponseDto {
         this.likeCount = entity.getLikeCount();
         this.hit = entity.getHit();
         this.viewerHasLike = viewerHasLike;
-        this.createdDate = entity.getCreatedDate().toString();
-        this.updatedDate = entity.getUpdatedDate().toString();
+        this.createdDate = entity.getCreatedDate();
+        this.updatedDate = entity.getUpdatedDate();
     }
 }

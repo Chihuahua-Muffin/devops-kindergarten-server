@@ -46,17 +46,23 @@ public class User {
 
     // 본인이 작성한 post와 comment의 인덱스를 저장하는 리스트
     @JsonIgnore
+    @Builder.Default
     @OneToMany(cascade = CascadeType.ALL)
     private List<Comment> commentList = new ArrayList<>();
 
     @JsonIgnore
+    @Builder.Default
     @OneToMany(cascade = CascadeType.ALL)
     private List<Post> postList = new ArrayList<>();
 
     // 본인이 좋아요를 누를 post와 comment의 인덱스를 저장하는 리스트
+    @JsonIgnore
+    @Builder.Default
     @ElementCollection
     private Set<Long> postLikeIdList = new HashSet<>();
 
+    @JsonIgnore
+    @Builder.Default
     @ElementCollection
     private Set<Long> commentLikeIdList = new HashSet<>();
 

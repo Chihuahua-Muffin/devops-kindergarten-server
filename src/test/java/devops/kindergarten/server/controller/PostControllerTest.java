@@ -1,13 +1,16 @@
 package devops.kindergarten.server.controller;
 
 import devops.kindergarten.server.domain.Post;
+import devops.kindergarten.server.domain.Status;
 import devops.kindergarten.server.domain.User;
+import devops.kindergarten.server.dto.UserDto;
 import devops.kindergarten.server.dto.post.*;
 import devops.kindergarten.server.exception.custom.PostNotFoundException;
 import devops.kindergarten.server.exception.custom.UserNotFoundException;
 import devops.kindergarten.server.repository.PostRepository;
 import devops.kindergarten.server.repository.UserRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +18,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 @ExtendWith(SpringExtension.class)

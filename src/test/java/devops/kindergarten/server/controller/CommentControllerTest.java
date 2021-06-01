@@ -1,12 +1,11 @@
 package devops.kindergarten.server.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import devops.kindergarten.server.domain.Comment;
 import devops.kindergarten.server.domain.Status;
 import devops.kindergarten.server.domain.User;
 import devops.kindergarten.server.dto.UserDto;
-import devops.kindergarten.server.dto.comment.CommentSaveRequestDto;
-import devops.kindergarten.server.dto.comment.CommentUpdateRequestDto;
-import devops.kindergarten.server.dto.comment.RecommentSaveRequestDto;
+import devops.kindergarten.server.dto.comment.*;
 import devops.kindergarten.server.dto.post.PostSaveRequestDto;
 import devops.kindergarten.server.exception.custom.CommentNotFoundException;
 import devops.kindergarten.server.repository.CommentRepository;
@@ -22,10 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,32 +41,18 @@ class CommentControllerTest {
     private PostRepository postRepository;
 
     public HashMap<String,String> createUserAndPost() throws Exception {
-        userRepository.deleteAll();
-        postRepository.deleteAll();
-        commentRepository.deleteAll();
         HashMap<String,String> result = new HashMap<>();
-
         RestTemplate restTemplate = new RestTemplate();
-        String username = "ProtoSeo";
-        String name = "seoseunghun";
-        String password = "password";
-        String email = "hello@naver.com";
-        Status status = Status.STUDENT;
-
-        String signupUrl = "http://localhost:" + port + "/api/signup";
-        UserDto userDto = new UserDto(username,name,email,password,status.toString());
-        restTemplate.postForEntity(new URI(signupUrl),userDto, User.class);
-
         String title = "title";
         String content = "content";
         String category = "develop";
 
         String postUrl = "http://localhost:" + port + "/api/post";
-        PostSaveRequestDto requestDto = new PostSaveRequestDto(title,content, username, category);
+        PostSaveRequestDto requestDto = new PostSaveRequestDto(title,content, "admin", category);
 
         Long postId = restTemplate.postForEntity(new URI(postUrl),requestDto,Long.class).getBody();
 
-        result.put("username",username);
+        result.put("username","admin");
         result.put("postId",postId.toString());
         return result;
     }
@@ -109,7 +91,7 @@ class CommentControllerTest {
         assertEquals(comment.getContent(),content);
         assertEquals(comment.getUsername(),username);
         assertEquals(comment.getPost().getId(),postId);
-        assertEquals(comment.getLike(),0);
+        assertEquals(comment.getLikeCount(),0);
     }
     @Test
     public void 대댓글_추가기능_테스트() throws Exception{
@@ -131,7 +113,7 @@ class CommentControllerTest {
         assertEquals(recomment.getUsername(),username);
         assertEquals(recomment.getPost().getId(),postId);
         assertEquals(recomment.getParent().getId(),parentId);
-        assertEquals(recomment.getLike(),0);
+        assertEquals(recomment.getLikeCount(),0);
     }
 
     @Test
@@ -185,6 +167,45 @@ class CommentControllerTest {
         assertEquals(recomment.getParent().getId(),parentId);
     }
     @Test
+    public void 댓글_좋아요기능_테스트() throws Exception{
+        //given
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://localhost:" + port + "/api";
+        HashMap<String,String> memory = createUserAndPost();
+
+        String username = memory.get("username");
+        Long postId = Long.parseLong(memory.get("postId"));
+        Long parentId1 = createComment("댓글 1",username,postId).getBody();
+        Long parentId2 = createComment("댓글 2",username,postId).getBody();
+        Long parentId3 = createComment("댓글 3",username,postId).getBody();
+
+        Long recommentId1 = createRecomment("대댓글 1 - 4",username,postId,parentId1).getBody();
+        Long recommentId2 = createRecomment("대댓글 1 - 5",username,postId,parentId1).getBody();
+        Long recommentId3 = createRecomment("대댓글 2 - 6",username,postId,parentId2).getBody();
+        Long recommentId4 = createRecomment("대댓글 3 - 7",username,postId,parentId3).getBody();
+        Long recommentId5 = createRecomment("대댓글 3 - 8",username,postId,parentId3).getBody();
+        Long recommentId6 = createRecomment("대댓글 3 - 9",username,postId,parentId3).getBody();
+
+        URI uri = new URI(url+"/comments?postId="+postId+"&username="+username);
+        URI likeUri = new URI(url+"/comment/like");
+
+        CommentLikeRequestDto requestDto1 = new CommentLikeRequestDto(parentId1,username);
+        CommentLikeRequestDto requestDto2 = new CommentLikeRequestDto(parentId3,username);
+        CommentLikeRequestDto requestDto3 = new CommentLikeRequestDto(recommentId1,username);
+        CommentLikeRequestDto requestDto4 = new CommentLikeRequestDto(recommentId3,username);
+        CommentLikeRequestDto requestDto5 = new CommentLikeRequestDto(recommentId5,username);
+        //when
+        restTemplate.postForEntity(likeUri,requestDto1, CommentLikeResponseDto.class);
+        restTemplate.postForEntity(likeUri,requestDto2, CommentLikeResponseDto.class);
+        restTemplate.postForEntity(likeUri,requestDto3, CommentLikeResponseDto.class);
+        restTemplate.postForEntity(likeUri,requestDto4, CommentLikeResponseDto.class);
+        restTemplate.postForEntity(likeUri,requestDto5, CommentLikeResponseDto.class);
+
+        ResponseEntity<List> result = restTemplate.getForEntity(uri,List.class);
+        //then
+        System.out.println(result.getBody());
+    }
+    @Test
     public void 댓글_목록기능_테스트() throws Exception{
         //given
         RestTemplate restTemplate = new RestTemplate();
@@ -233,9 +254,8 @@ class CommentControllerTest {
         ResponseEntity<List> result = restTemplate.getForEntity(uri,List.class);
 
         //then
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < result.getBody().size(); i++) {
             System.out.println(result.getBody().get(i));
-            assertTrue(result.getBody().get(i).toString().contains("content"+i));
         }
     }
 }
