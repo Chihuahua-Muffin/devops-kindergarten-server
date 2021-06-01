@@ -1,6 +1,6 @@
 package devops.kindergarten.server.controller;
 
-import devops.kindergarten.server.dto.post.*;
+import devops.kindergarten.server.dto.post.*;=
 import devops.kindergarten.server.exception.custom.PostNotFoundException;
 import devops.kindergarten.server.service.PostService;
 import lombok.RequiredArgsConstructor;
