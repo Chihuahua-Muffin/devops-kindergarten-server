@@ -1,6 +1,7 @@
 package devops.kindergarten.server.controller;
 
 import devops.kindergarten.server.dto.post.*;
+import devops.kindergarten.server.exception.custom.PostNotFoundException;
 import devops.kindergarten.server.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostController {
     private final PostService postService;
-
 
     @PostMapping("/api/post")
     public Long save(@RequestBody PostSaveRequestDto requestDto){
@@ -53,6 +53,12 @@ public class PostController {
     @GetMapping("/api/posts")
     public List<PostListResponseDto> findAllByLimitAndOffset(@RequestParam int offset){
         return postService.findAllByLimitAndOffset(offset);
+    }
+
+    @GetMapping("/api/posts/search")
+    public List<PostListResponseDto> searchByTitleOrContent(@RequestParam(value = "tc") String tc) {
+        if(tc.equals("")) throw new PostNotFoundException("검색 값이 공백입니다.");
+        return postService.searchByTitleOrContent(tc);
     }
 }
 
