@@ -33,9 +33,12 @@ dependencies {
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
     implementation 'io.springfox:springfox-swagger2:2.9.2'
     // jjwt 관련
-    compile group: 'io.jsonwebtoken',name: 'jjwt-api', version: '0.11.2'
-    runtime group: 'io.jsonwebtoken',name: 'jjwt-impl', version: '0.11.2'
-    runtime group: 'io.jsonwebtoken',name: 'jjwt-jackson', version: '0.11.2'
+    compile group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.2'
+    runtime group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
+    runtime group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
+
+    implementation 'org.springframework.session:spring-session-jdbc'
+    implementation 'org.mariadb.jdbc:mariadb-java-client'
 }
 
 test {
