@@ -56,7 +56,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
     @Override
     protected void configure(HttpSecurity http) throws Exception{
-        http    .cors()
+        http    .cors().configurationSource(corsConfigurationSource())
                 .and()
 
                 .csrf().disable()   // token 방식을 사용하므로 csrf 설정을 disable 해준다.
