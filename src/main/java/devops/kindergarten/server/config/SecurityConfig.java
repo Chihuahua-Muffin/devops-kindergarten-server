@@ -56,12 +56,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
     @Override
     protected void configure(HttpSecurity http) throws Exception{
-        http    .cors().configurationSource(corsConfigurationSource())
-                .and()
+        http
+//                .cors().configurationSource(corsConfigurationSource())
+//                .and()
 
                 .csrf().disable()   // token 방식을 사용하므로 csrf 설정을 disable 해준다.
 
-//                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
@@ -87,16 +88,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .apply(new JwtSecurityConfig(tokenProvider));
     }
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        final CorsConfiguration configuration = new CorsConfiguration();
-        //configuration.setAllowedOrigins(ImmutableList.of("http://localhost:8080","http://localhost:8084"));
-        configuration.setAllowedOriginPatterns(ImmutableList.of("*"));
-        configuration.setAllowedMethods(ImmutableList.of("GET", "POST", "PUT", "DELETE"));
-        configuration.setAllowCredentials(true);
-        configuration.setAllowedHeaders(ImmutableList.of("Authorization", "Cache-Control", "Content-Type"));
-        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        final CorsConfiguration configuration = new CorsConfiguration();
+//        //configuration.setAllowedOrigins(ImmutableList.of("http://localhost:8080","http://localhost:8084"));
+//        configuration.setAllowedOriginPatterns(ImmutableList.of("*"));
+//        configuration.setAllowedMethods(ImmutableList.of("GET", "POST", "PUT", "DELETE"));
+//        configuration.setAllowCredentials(true);
+//        configuration.setAllowedHeaders(ImmutableList.of("Authorization", "Cache-Control", "Content-Type"));
+//        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
 }
