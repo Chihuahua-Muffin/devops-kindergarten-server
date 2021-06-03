@@ -91,7 +91,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration();
         //configuration.setAllowedOrigins(ImmutableList.of("http://localhost:8080","http://localhost:8084"));
-        configuration.setAllowedOrigins(ImmutableList.of("*"));
+        configuration.setAllowedOriginPatterns(ImmutableList.of("*"));
         configuration.setAllowedMethods(ImmutableList.of("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowCredentials(true);
         configuration.setAllowedHeaders(ImmutableList.of("Authorization", "Cache-Control", "Content-Type"));
