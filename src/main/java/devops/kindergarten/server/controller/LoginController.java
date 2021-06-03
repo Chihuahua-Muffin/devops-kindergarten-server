@@ -6,6 +6,8 @@ import devops.kindergarten.server.exception.custom.LoginException;
 import devops.kindergarten.server.jwt.JwtFilter;
 import devops.kindergarten.server.jwt.TokenProvider;
 import devops.kindergarten.server.service.UserService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 
+@Api(tags = {"로그인 관련 컨트롤러"})
 @RestController
 @RequiredArgsConstructor
 public class LoginController {
@@ -29,6 +32,7 @@ public class LoginController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final UserService userService;
 
+    @ApiOperation(value = "로그인 기능",notes="로그인하는데 사용된다.")
     @PostMapping("/api/login")
     public ResponseEntity<TokenDto> authorize(@Valid @RequestBody LoginDto loginDto) {
         if(!userService.validatePassword(loginDto.getUsername(), loginDto.getPassword())){
