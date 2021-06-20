@@ -1,82 +1,58 @@
 package devops.kindergarten.server.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import devops.kindergarten.server.ControllerTestSupport;
 import devops.kindergarten.server.domain.Status;
 import devops.kindergarten.server.domain.User;
-import devops.kindergarten.server.dto.UserDto;
-import devops.kindergarten.server.repository.UserRepository;
-import devops.kindergarten.server.service.UserService;
+import devops.kindergarten.server.exception.custom.UserNotFoundException;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
 
-import javax.persistence.EntityManager;
 
-import java.util.Optional;
+import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+class UserControllerTest extends ControllerTestSupport {
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class UserControllerTest {
-    @LocalServerPort
-    private int port;
+    @Test
+    public void 회원가입_테스트() throws Exception{
+        //given
 
-    @Autowired
-    private WebApplicationContext context;
+        //when
+        ResponseEntity<User> result = signup(username,name,password,email,status);
+        Long id = result.getBody().getId();
 
-    private MockMvc mvc;
+        //then
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @BeforeEach
-    public void setup(){
-        mvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+        Assertions.assertThat(user.getName()).isEqualTo(name);
+        Assertions.assertThat(user.getUsername()).isEqualTo(username);
+        Assertions.assertThat(user.getEmail()).isEqualTo(email);
+        Assertions.assertThat(passwordEncoder.matches(password,user.getPassword())).isEqualTo(true);
     }
 
     @Test
-    @WithMockUser("ADMIN")
-    public void 회원가입_테스트() throws Exception{
+    public void 유저정보호출_테스트() throws Exception{
         //given
-        String username = "helloTest1";
-        String name = "seo";
-        String password = "helloPassword";
-        String email = "hello@naver.com";
-        Status status = Status.STUDENT;
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://localhost:" + port + "/api/user/"+username;
 
-        UserDto userDto = new UserDto(username,name,email,password,status.toString());
-
-        String url = "http://localhost:" + port + "/api/signup";
+        signup(username,name,password,email,status);
+        String token = login(username,password).getBody().getToken();
 
         //when
-        ResultActions resultActions = mvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(new ObjectMapper().writeValueAsString(userDto)))
-                .andExpect(status().isOk());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization","Bearer "+token);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        ResponseEntity<User> result = restTemplate.exchange(url, HttpMethod.GET,  new HttpEntity<>("parameters", headers), User.class);
+        Long id = result.getBody().getId();
 
         //then
-        Optional<User> opt = userRepository.findOneWithAuthoritiesByUsername(username);
-        if(opt.isPresent()){
-            User user = opt.get();
-            System.out.println("UserControllerTest.회원가입_테스트"+user.getId());
-            Assertions.assertThat(user.getEmail()).isEqualTo(email);
-            Assertions.assertThat(user.getName()).isEqualTo(name);
-            Assertions.assertThat(user.getUsername()).isEqualTo(username);
-        }
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+
+        Assertions.assertThat(user.getName()).isEqualTo(name);
+        Assertions.assertThat(user.getUsername()).isEqualTo(username);
+        Assertions.assertThat(user.getEmail()).isEqualTo(email);
+        Assertions.assertThat(passwordEncoder.matches(password,user.getPassword())).isEqualTo(true);
     }
 }

@@ -66,7 +66,6 @@ public class User {
     @ElementCollection
     private Set<Long> commentLikeIdList = new HashSet<>();
 
-
     public User(String subject, Collection<? extends GrantedAuthority> authorities) {
         this.username = subject;
         this.authorities = new HashSet<>((Collection<? extends Authority>) authorities);

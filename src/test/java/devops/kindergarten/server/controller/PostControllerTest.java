@@ -1,5 +1,6 @@
 package devops.kindergarten.server.controller;
 
+import devops.kindergarten.server.ControllerTestSupport;
 import devops.kindergarten.server.domain.Post;
 import devops.kindergarten.server.domain.Status;
 import devops.kindergarten.server.domain.User;
@@ -10,6 +11,7 @@ import devops.kindergarten.server.exception.custom.UserNotFoundException;
 import devops.kindergarten.server.repository.PostRepository;
 import devops.kindergarten.server.repository.UserRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,36 +30,17 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class PostControllerTest {
-    @LocalServerPort
-    private int port;
+class PostControllerTest extends ControllerTestSupport {
 
-    @Autowired
-    private PostRepository postRepository;
-    @Autowired
-    private UserRepository userRepository;
-
-    public ResponseEntity<Long> createPost(String title, String content, String category, User user) throws Exception{
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:" + port + "/api/post";
-        PostSaveRequestDto requestDto = new PostSaveRequestDto(title,content, user.getUsername(), category);
-        URI uri = new URI(url);
-
-        return restTemplate.postForEntity(uri,requestDto,Long.class);
+    @BeforeEach
+    private void setUser()throws Exception{
+        signup(username,name,password,email,status);
     }
 
     @Test
     public void 글_작성기능_테스트() throws Exception{
         //given
-        String url = "http://localhost:" + port + "/api/post";
-
         User user = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
-        String title = "title";
-        String content = "content";
-        String username = user.getUsername();
-        String category = "develop";
 
         //when
         ResponseEntity<Long> result = createPost(title,content,category,user);
@@ -78,16 +61,12 @@ class PostControllerTest {
     public void 글_확인기능_테스트1 () throws Exception{
         //given
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:" + port + "/api/post";
-
         User user = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
-        String title = "title";
-        String username = user.getUsername();
-        String content = "content";
-        String category = "develop";
+
         ResponseEntity<Long> post = createPost(title,content,category,user);
         Long postId = post.getBody();
 
+        String url = "http://localhost:" + port + "/api/post";
         URI uri = new URI(url+"/"+postId);
 
         //when
@@ -107,10 +86,7 @@ class PostControllerTest {
         String url = "http://localhost:" + port + "/api/post";
 
         User user = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
-        String title = "title";
-        String username = user.getUsername();
-        String content = "content";
-        String category = "develop";
+
         ResponseEntity<Long> post = createPost(title,content,category,user);
         Long postId = post.getBody();
 
@@ -134,11 +110,8 @@ class PostControllerTest {
         String url = "http://localhost:" + port + "/api/post";
 
         User user = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
-        String title = "title";
-        String username = user.getUsername();
-        String content = "content";
-        String category = "develop";
         ResponseEntity<Long> post = createPost(title,content,category,user);
+
         Long postId = post.getBody();
 
         URI uri = new URI(url+"/"+postId+"/"+username);
@@ -180,9 +153,10 @@ class PostControllerTest {
         //given
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:" + port + "/api/post/like";
+        signup(username+0,name+0,password+2,email,status);
         User user1 = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
         User user2 = userRepository.findById(2L).orElseThrow(UserNotFoundException::new);
-        ResponseEntity<Long> post = createPost("title","content","develop",user1);
+        ResponseEntity<Long> post = createPost(title,content,category,user1);
 
         Long postId = post.getBody();
         String username1 = user1.getUsername();
@@ -206,7 +180,7 @@ class PostControllerTest {
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:" + port + "/api/post";
         User user = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
-        ResponseEntity<Long> post = createPost("title","content","develop",user);
+        ResponseEntity<Long> post = createPost(title,content,category,user);
 
         Long postId = post.getBody();
         URI uri = new URI(url+"/"+postId);
@@ -218,7 +192,7 @@ class PostControllerTest {
         restTemplate.put(uri,requestDto);
         ResponseEntity<PostResponseDto> result = restTemplate.getForEntity(uri,PostResponseDto.class);
         //then
-        Assertions.assertThat(user.getName()).isEqualTo(result.getBody().getUsername());
+        Assertions.assertThat(user.getUsername()).isEqualTo(result.getBody().getUsername());
         Assertions.assertThat(updateTitle).isEqualTo(result.getBody().getTitle());
         Assertions.assertThat(updateContent).isEqualTo(result.getBody().getContent());
         Assertions.assertThat(updateCategory).isEqualTo(result.getBody().getCategory());
@@ -228,16 +202,16 @@ class PostControllerTest {
     public void 글_삭제기능_테스트() throws Exception{
         //given
         RestTemplate restTemplate = new RestTemplate();
+        User user = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
+        createPost(title,content,category,user);
+
         String url = "http://localhost:" + port + "/api/post/1";
         URI uri = new URI(url);
         //when
         restTemplate.delete(uri);
         //then
-        try {
-            restTemplate.getForEntity(uri,PostResponseDto.class);
-        }catch (HttpClientErrorException e){
-            Assertions.assertThat(e.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        }
+        org.junit.jupiter.api.Assertions.assertThrows(HttpClientErrorException.class,
+                ()->restTemplate.getForEntity(uri,PostResponseDto.class));
     }
     @Test
     public void 글_카테고리_목록기능_테스트() throws Exception{
@@ -283,9 +257,6 @@ class PostControllerTest {
     public void 글_검색_테스트() throws Exception{
         //given
         User user = userRepository.findById(1L).orElseThrow(UserNotFoundException::new);
-        String title = "제목";
-        String content = "내용";
-        String category = "develop";
         createPost(title,content,category,user);
 
         //when

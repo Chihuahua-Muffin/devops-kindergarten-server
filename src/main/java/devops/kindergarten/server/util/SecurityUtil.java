@@ -1,5 +1,6 @@
 package devops.kindergarten.server.util;
 
+import devops.kindergarten.server.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -29,8 +30,11 @@ public class SecurityUtil {
             username = springSecurityUser.getUsername();
         } else if (authentication.getPrincipal() instanceof String) {
             username = (String) authentication.getPrincipal();
+        }else if(authentication.getPrincipal() instanceof User){
+            username = ((User) authentication.getPrincipal()).getUsername();
         }
 
+        logger.debug("username " + username);
         return Optional.ofNullable(username);
     }
 }

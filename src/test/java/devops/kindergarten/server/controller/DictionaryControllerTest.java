@@ -1,5 +1,6 @@
 package devops.kindergarten.server.controller;
 
+import devops.kindergarten.server.ControllerTestSupport;
 import devops.kindergarten.server.domain.Dictionary;
 import devops.kindergarten.server.dto.dictionary.DictionaryRequestDto;
 import devops.kindergarten.server.dto.dictionary.DictionaryResponseDto;
@@ -23,23 +24,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class DictionaryControllerTest {
+class DictionaryControllerTest extends ControllerTestSupport {
 
-    @LocalServerPort
-    private int port;
-
-    @Autowired
-    private DictionaryRepository dictionaryRepository;
-
-    public ResponseEntity<Long> createDictionary(String wordEnglish, String wordKorean, String description, List<String> tagList) throws Exception{
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:" + port + "/api/dictionary";
-        URI uri = new URI(url);
-        DictionaryRequestDto requestDto = new DictionaryRequestDto(wordEnglish,wordKorean,description,tagList);
-        return restTemplate.postForEntity(uri,requestDto,Long.class);
-    }
     @Test
     public void 사전_추가기능_테스트() throws Exception{
         //given
@@ -82,7 +68,6 @@ class DictionaryControllerTest {
         ResponseEntity<DictionaryResponseDto> result = restTemplate.getForEntity(uri,DictionaryResponseDto.class);
 
         //then
-
         assertEquals(result.getBody().getWordEnglish(),wordEnglish,"사전 영어 명칭 확인");
         assertEquals(result.getBody().getWordKorean(),wordKorean,"사전 한국어 명칭 확인");
         assertEquals(result.getBody().getDescription(),description,"사전 내용 확인");
