@@ -1,6 +1,7 @@
 package devops.kindergarten.server.config;
 
 import com.google.common.base.Predicates;
+import com.sun.xml.bind.v2.schemagen.xmlschema.Appinfo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -11,9 +12,15 @@ import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 @Configuration
 @EnableSwagger2
@@ -33,12 +40,5 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                 .apis(RequestHandlerSelectors.basePackage("devops.kindergarten.server.controller"))//탐색할 클래스 필터링
                 .paths(PathSelectors.any()) //스웨거에서 보여줄 api 필터링
                 .build();
-    }
-    @Override
-    public void addResourceHandlers(ResourceHandlerRegistry registry)
-    {
-        //enabling swagger-ui part for visual documentation
-        registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
-        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 }

@@ -1,7 +1,6 @@
 package devops.kindergarten.server.controller;
 
 import devops.kindergarten.server.domain.ImageFile;
-import devops.kindergarten.server.dto.lecture.LectureRequestDto;
 import devops.kindergarten.server.dto.lecture.LectureResponseDto;
 import devops.kindergarten.server.service.LectureService;
 import io.swagger.annotations.Api;
@@ -14,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+
 
 @Api(tags = {"강의관련 기능"})
 @RestController
@@ -28,6 +28,7 @@ public class LectureController {
                      @RequestPart(value = "image") MultipartFile image) throws IOException {
         return lectureService.save(image, request);
     }
+
 
     @ApiOperation(value = "강의 수정 기능",notes="강의를 수정하는데 사용된다.")
     @PutMapping(value = "/api/lecture/{id}", consumes = {
