@@ -41,4 +41,11 @@ public class SwaggerConfig extends WebMvcConfigurationSupport {
                 .paths(PathSelectors.any()) //스웨거에서 보여줄 api 필터링
                 .build();
     }
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry)
+    {
+        //enabling swagger-ui part for visual documentation
+        registry.addResourceHandler("swagger-ui.html").addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
+    }
 }
