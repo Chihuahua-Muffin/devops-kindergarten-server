@@ -22,9 +22,12 @@ spring:
 logging:
   level:
     org.mariadb.jdbc: trace
-#    devops.kindergarten.server: debug
+    devops.kindergarten.server: debug
 
 jwt:
   header: Authorization
   secret: WkdWMmIzQnpMV3RwYm1SbGNtZGhjblJsYmkxelpYSjJaWEl0Y0hKdmFtVmpkQzFxZDNRdGMyVmpjbVYwTFd0bGVTMTBieTFpWVhObE5qUUsK
-  token-validity-in-seconds: 86400
+#  token-validity-in-seconds: 7200    # 2시간
+#  refresh-validity-in-seconds: 1209600 # 2주
+  token-validity-in-seconds: 20 # 20초
+  refresh-validity-in-seconds: 40 # 40초

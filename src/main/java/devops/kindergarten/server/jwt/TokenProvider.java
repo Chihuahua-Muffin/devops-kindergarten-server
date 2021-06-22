@@ -1,6 +1,7 @@
 package devops.kindergarten.server.jwt;
 
 import devops.kindergarten.server.domain.User;
+import devops.kindergarten.server.service.CustomUserDetailsService;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -12,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -29,12 +31,14 @@ public class TokenProvider implements InitializingBean {
     private final long tokenValidityInMilliseconds;
 
     private Key key;
-
+    private final CustomUserDetailsService userDetailsService;
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds) {
+            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds,
+            CustomUserDetailsService userDetailsService) {
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -43,23 +47,36 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
+    // token 을 만들 때 사용하는 함수
+    // AuthController 에서 로그인 때 사용
     public String createToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
-        long now = (new Date()).getTime();
-        Date validity = new Date(now + this.tokenValidityInMilliseconds);
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + this.tokenValidityInMilliseconds);
 
         return Jwts.builder()
                 .setSubject(authentication.getName())
-                .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS512)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .compact();
+    }
+    public String createTokenFromPrincipal(UserDetailsImpl userDetails){
+        return createTokenFromUsername(userDetails.getUsername());
+    }
+    public String createTokenFromUsername(String username) {
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + this.tokenValidityInMilliseconds);
+
+        return Jwts.builder()
+                .setSubject(username)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setIssuedAt(now)
                 .setExpiration(validity)
                 .compact();
     }
 
-    public Authentication getAuthentication(String token) {
+    /* //token 에서 Authentication 반환해줌
+    public Authentication getAuthenticationFromJwtToken(String token) {
         Claims claims = Jwts
                 .parserBuilder()
                 .setSigningKey(key)
@@ -72,11 +89,21 @@ public class TokenProvider implements InitializingBean {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        User principal = new User(claims.getSubject(), authorities);
+        UserDetails principal = new User(claims.getSubject(), authorities);
 
         return new UsernamePasswordAuthenticationToken(principal, token, authorities);
-    }
+    }*/
 
+    public UsernamePasswordAuthenticationToken getUserNameFromJwtToken(String token) {
+        String username = Jwts
+                .parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody().getSubject();
+        UserDetails principal = userDetailsService.loadUserByUsername(username);
+        return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
+    }
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);

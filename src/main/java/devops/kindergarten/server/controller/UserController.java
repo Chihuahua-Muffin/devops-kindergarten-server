@@ -19,12 +19,6 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @ApiOperation(value = "회원가입 기능",notes="회원가입하는데 사용된다.")
-    @PostMapping("/api/signup")
-    public ResponseEntity<User> signup(@Valid @RequestBody UserDto userDto) {
-        return ResponseEntity.ok(userService.signup(userDto));
-    }
-
     @ApiOperation(value = "중복된 유저 아이디 검사기능",notes="회원가입 할 떄, 중복된 아이디가 있는지 확인한다.")
     @GetMapping("/api/validate/{username}")
     public ResponseEntity<String> check(@PathVariable String username) {

@@ -5,6 +5,7 @@ import devops.kindergarten.server.exception.custom.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,5 +53,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ImageNotFoundException.class)
     public ResponseEntity<ErrorInfo> imageNotFoundHandler(HttpServletRequest request, final RuntimeException e) {
         return error(e, HttpStatus.BAD_REQUEST, request);
+    }
+    @ExceptionHandler(TokenRefreshException.class)
+    public ResponseEntity<ErrorInfo> TokenRefreshHandler(HttpServletRequest request, final RuntimeException e) {
+        return error(e, HttpStatus.FORBIDDEN, request);
     }
 }

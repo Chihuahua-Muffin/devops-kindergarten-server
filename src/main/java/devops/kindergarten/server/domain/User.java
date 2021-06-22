@@ -36,6 +36,9 @@ public class User {
     @Column(name="password")
     private String password;
 
+//    @OneToOne(mappedBy = "user")
+//    private RefreshToken refreshToken;
+
     @ManyToMany
     @JoinTable(
             name="user_authority",
