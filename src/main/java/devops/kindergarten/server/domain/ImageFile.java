@@ -25,7 +25,7 @@ public class ImageFile {
     @Lob
     private byte[] data;
 
-    @OneToOne
+    @OneToOne(mappedBy = "thumbnail")
     private Lecture lecture;
 
     public static ImageFile createImageFile(String fileName, String fileType,byte[] data){
