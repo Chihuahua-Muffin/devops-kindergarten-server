@@ -1,10 +1,4 @@
 spring:
-  h2:
-    console:
-      enabled: true
-      settings:
-        web-allow-others: true
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -14,7 +8,7 @@ spring:
     generate-ddl: true
 
   datasource:
-    url: jdbc:mariadb://localhost:3306/testspring
+    url: jdbc:mariadb://localhost:3306/testdb
     username: root
     password:
     driver-class-name: org.mariadb.jdbc.Driver
@@ -22,12 +16,9 @@ spring:
 logging:
   level:
     org.mariadb.jdbc: trace
-    devops.kindergarten.server: debug
 
 jwt:
   header: Authorization
   secret: WkdWMmIzQnpMV3RwYm1SbGNtZGhjblJsYmkxelpYSjJaWEl0Y0hKdmFtVmpkQzFxZDNRdGMyVmpjbVYwTFd0bGVTMTBieTFpWVhObE5qUUsK
-#  token-validity-in-seconds: 7200    # 2시간
-#  refresh-validity-in-seconds: 1209600 # 2주
-  token-validity-in-seconds: 20 # 20초
-  refresh-validity-in-seconds: 40 # 40초
+  token-validity-in-seconds: 3600
+  refresh-validity-in-seconds: 1209600

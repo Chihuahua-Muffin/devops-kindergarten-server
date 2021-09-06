@@ -1,42 +1,25 @@
 package devops.kindergarten.server.service;
 
-import devops.kindergarten.server.domain.User;
 import devops.kindergarten.server.exception.custom.LoginException;
+import devops.kindergarten.server.jwt.UserDetailsImpl;
 import devops.kindergarten.server.repository.UserRepository;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Component("userDetailsService")
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
-
-    public CustomUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     @Transactional
     public UserDetails loadUserByUsername(final String username) {
+        // userRepository 에서 username 으로 검색해서 User 객체를 찾은 뒤, 해당 객체를 UserDetailsImpl 로 build 해서 반환한다.
         return userRepository.findOneWithAuthoritiesByUsername(username)
-                .map(user -> createUser(username, user))
+                .map(UserDetailsImpl::build)
                 .orElseThrow(() -> new LoginException(username + " -> 데이터베이스에서 찾을 수 없습니다."));
-    }
-
-    private org.springframework.security.core.userdetails.User createUser(String username, User user) {
-        List<GrantedAuthority> grantedAuthorities = user.getAuthorities().stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
-                .collect(Collectors.toList());
-
-        return new org.springframework.security.core.userdetails.User(user.getUsername(),
-                user.getPassword(),
-                grantedAuthorities);
     }
 }

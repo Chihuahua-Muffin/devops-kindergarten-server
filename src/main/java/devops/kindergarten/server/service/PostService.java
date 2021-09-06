@@ -74,6 +74,9 @@ public class PostService {
     public void delete(Long id){
         Post post = postRepository.findById(id)
                 .orElseThrow(()->new PostNotFoundException("해당 id의 post 가 존재하지 않습니다."));
+        User user = userRepository.findByUsername(post.getUsername()).orElseThrow(UserNotFoundException::new);
+        user.getPostList().remove(post);
+        userRepository.save(user);
         postRepository.delete(post);
     }
     @Transactional

@@ -67,4 +67,11 @@ public class UserService {
     public Optional<User> getMyUserWithAuthorities() {
         return SecurityUtil.getCurrentUsername().flatMap(userRepository::findOneWithAuthoritiesByUsername);
     }
+
+    @Transactional
+    public Long delete(Long id) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        userRepository.delete(user);
+        return id;
+    }
 }

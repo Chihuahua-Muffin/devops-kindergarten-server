@@ -36,6 +36,9 @@ public class User {
     @Column(name="password")
     private String password;
 
+//    @OneToOne(mappedBy = "user")
+//    private RefreshToken refreshToken;
+
     @ManyToMany
     @JoinTable(
             name="user_authority",
@@ -65,7 +68,6 @@ public class User {
     @Builder.Default
     @ElementCollection
     private Set<Long> commentLikeIdList = new HashSet<>();
-
 
     public User(String subject, Collection<? extends GrantedAuthority> authorities) {
         this.username = subject;

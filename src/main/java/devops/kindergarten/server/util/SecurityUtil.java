@@ -1,5 +1,6 @@
 package devops.kindergarten.server.util;
 
+import devops.kindergarten.server.domain.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
@@ -17,7 +18,6 @@ public class SecurityUtil {
 
     public static Optional<String> getCurrentUsername() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         if (authentication == null) {
             logger.debug("Security Context에 인증 정보가 없습니다.");
             return Optional.empty();
@@ -29,8 +29,11 @@ public class SecurityUtil {
             username = springSecurityUser.getUsername();
         } else if (authentication.getPrincipal() instanceof String) {
             username = (String) authentication.getPrincipal();
+        }else if(authentication.getPrincipal() instanceof User){
+            username = ((User) authentication.getPrincipal()).getUsername();
         }
 
+        logger.debug("username " + username);
         return Optional.ofNullable(username);
     }
 }

@@ -1,6 +1,7 @@
 package devops.kindergarten.server.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import devops.kindergarten.server.ControllerTestSupport;
 import devops.kindergarten.server.domain.Comment;
 import devops.kindergarten.server.domain.Status;
 import devops.kindergarten.server.domain.User;
@@ -8,9 +9,11 @@ import devops.kindergarten.server.dto.UserDto;
 import devops.kindergarten.server.dto.comment.*;
 import devops.kindergarten.server.dto.post.PostSaveRequestDto;
 import devops.kindergarten.server.exception.custom.CommentNotFoundException;
+import devops.kindergarten.server.exception.custom.UserNotFoundException;
 import devops.kindergarten.server.repository.CommentRepository;
 import devops.kindergarten.server.repository.PostRepository;
 import devops.kindergarten.server.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,61 +28,16 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class CommentControllerTest {
-
-    @LocalServerPort
-    private int port;
-    @Autowired
-    private CommentRepository commentRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PostRepository postRepository;
-
-    public HashMap<String,String> createUserAndPost() throws Exception {
-        HashMap<String,String> result = new HashMap<>();
-        RestTemplate restTemplate = new RestTemplate();
-        String title = "title";
-        String content = "content";
-        String category = "develop";
-
-        String postUrl = "http://localhost:" + port + "/api/post";
-        PostSaveRequestDto requestDto = new PostSaveRequestDto(title,content, "admin", category);
-
-        Long postId = restTemplate.postForEntity(new URI(postUrl),requestDto,Long.class).getBody();
-
-        result.put("username","admin");
-        result.put("postId",postId.toString());
-        return result;
+class CommentControllerTest extends ControllerTestSupport {
+    @BeforeEach
+    private void setup() throws Exception {
+        signup(username, name, password, email, status);
     }
-
-    public ResponseEntity<Long> createComment(String content, String username, Long postId) throws Exception{
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:" + port + "/api/comment";
-        URI uri = new URI(url);
-        CommentSaveRequestDto requestDto = new CommentSaveRequestDto(content,username,postId);
-        return restTemplate.postForEntity(uri,requestDto,Long.class);
-    }
-
-    public ResponseEntity<Long> createRecomment(String content, String username, Long postId,Long parentId) throws Exception{
-        RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:" + port + "/api/recomment";
-        URI uri = new URI(url);
-        RecommentSaveRequestDto requestDto = new RecommentSaveRequestDto(content,username,postId,parentId);
-        return restTemplate.postForEntity(uri,requestDto,Long.class);
-    }
-
     @Test
     public void 댓글_추가기능_테스트() throws Exception{
         //given
-        HashMap<String,String> memory = createUserAndPost();
-        String content = "댓글을 달았어요,,";
-        String username = memory.get("username");
-        Long postId = Long.parseLong(memory.get("postId"));
+        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        Long postId = createPost(title, content, category, user).getBody();
 
         //when
         createComment(content,username,postId);
@@ -96,20 +54,19 @@ class CommentControllerTest {
     @Test
     public void 대댓글_추가기능_테스트() throws Exception{
         //given
-        HashMap<String,String> memory = createUserAndPost();
-        String content = "대댓글을 달았어요,,";
-        String username = memory.get("username");
-        Long postId = Long.parseLong(memory.get("postId"));
+        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        Long postId = createPost(title, content, category, user).getBody();
+
         Long parentId = createComment(content,username,postId).getBody();
 
         //when
-        createRecomment(content,username,postId,parentId);
+        createRecomment("대댓글",username,postId,parentId);
 
         //then
         List<Comment> commentList = commentRepository.findAll();
         Comment recomment = commentList.get(commentList.size()-1);
 
-        assertEquals(recomment.getContent(),content);
+        assertEquals(recomment.getContent(),"대댓글");
         assertEquals(recomment.getUsername(),username);
         assertEquals(recomment.getPost().getId(),postId);
         assertEquals(recomment.getParent().getId(),parentId);
@@ -121,9 +78,8 @@ class CommentControllerTest {
         //given
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:" + port + "/api/comment";
-        HashMap<String,String> memory = createUserAndPost();
-        String username = memory.get("username");
-        Long postId = Long.parseLong(memory.get("postId"));
+        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        Long postId = createPost(title, content, category, user).getBody();
         Long commentId = createComment("댓글을 달았어요,,",username,postId).getBody();
         URI uri = new URI(url +"/"+commentId);
 
@@ -137,18 +93,15 @@ class CommentControllerTest {
         assertEquals(comment.getContent(),updateContent);
         assertEquals(comment.getPost().getId(),postId);
         assertEquals(comment.getUsername(),username);
-
     }
     @Test
     public void  대댓글_수정기능_테스트() throws Exception{
         //given
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:" + port + "/api/comment";
-        HashMap<String,String> memory = createUserAndPost();
 
-        String username = memory.get("username");
-
-        Long postId = Long.parseLong(memory.get("postId"));
+        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        Long postId = createPost(title, content, category, user).getBody();
         Long parentId = createComment("댓글을 달았어요,,",username,postId).getBody();
         Long recommentId = createRecomment("대댓글을 달았어요",username,postId,parentId).getBody();
 
@@ -171,10 +124,9 @@ class CommentControllerTest {
         //given
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:" + port + "/api";
-        HashMap<String,String> memory = createUserAndPost();
+        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        Long postId = createPost(title, content, category, user).getBody();
 
-        String username = memory.get("username");
-        Long postId = Long.parseLong(memory.get("postId"));
         Long parentId1 = createComment("댓글 1",username,postId).getBody();
         Long parentId2 = createComment("댓글 2",username,postId).getBody();
         Long parentId3 = createComment("댓글 3",username,postId).getBody();
@@ -210,10 +162,9 @@ class CommentControllerTest {
         //given
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:" + port + "/api/comments";
-        HashMap<String,String> memory = createUserAndPost();
+        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        Long postId = createPost(title, content, category, user).getBody();
 
-        String username = memory.get("username");
-        Long postId = Long.parseLong(memory.get("postId"));
         Long parentId1 = createComment("11111",username,postId).getBody();
         Long parentId2 = createComment("22222",username,postId).getBody();
         Long parentId3 = createComment("33333",username,postId).getBody();
@@ -242,10 +193,9 @@ class CommentControllerTest {
         //given
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://localhost:" + port + "/api/comments";
-        HashMap<String,String> memory = createUserAndPost();
+        User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+        Long postId = createPost(title, content, category, user).getBody();
 
-        String username = memory.get("username");
-        Long postId = Long.parseLong(memory.get("postId"));
         for (int i = 0; i < 4; i++) {
             createComment("content"+i,username,postId);
         }
