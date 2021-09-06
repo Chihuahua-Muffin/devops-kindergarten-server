@@ -41,7 +41,7 @@ public class Post {
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
     private List<Comment> commentList = new ArrayList<>();
 
     private void setAuthor(User author){
