@@ -15,22 +15,19 @@ import java.util.List;
 public class LectureRequestDto {
     private String title;
     private MultipartFile thumbnail;
-    private String description;
-    private List<String> tagList;
+    private String content;
 
     @Builder
-    public LectureRequestDto(String title, MultipartFile thumbnail, String description, List<String> tagList) {
+    public LectureRequestDto(String title, MultipartFile thumbnail, String content) {
         this.title = title;
         this.thumbnail = thumbnail;
-        this.description = description;
-        this.tagList = tagList;
+        this.content = content;
     }
 
     public Lecture toLectureEntity() {
         return Lecture.builder()
                 .title(title)
-                .description(description)
-                .tagList(tagList)
+                .content(content)
                 .build();
     }
 }
