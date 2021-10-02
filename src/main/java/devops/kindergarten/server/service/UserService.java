@@ -44,7 +44,7 @@ public class UserService {
         }
 
         Authority authority = Authority.builder()
-                .authorityName(userDto.getStatus().toString())
+                .authorityName(userDto.getStatus())
                 .build();
 
         User user = User.builder()
