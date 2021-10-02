@@ -1,7 +1,5 @@
 package devops.kindergarten.server.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.*;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -14,30 +12,23 @@ import java.util.*;
 @Table(name = "user", uniqueConstraints = {
 	@UniqueConstraint(columnNames = {"username"})
 })
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 @Getter
 public class User {
-	// User 인덱스
 	@Id
 	@Column(name = "user_id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	// 사용자의 username(user의 회원가입 할 때의 ID)
 	@Column(name = "username", unique = true)
 	private String username;
 
-	// 사용자의 이름
 	@Column(name = "name")
 	private String name;
 
-	// 사용자의 email
 	@Column(name = "email")
 	private String email;
 
-	// 사용자의 비밀번호
 	@Column(name = "password")
 	private String password;
 
@@ -52,30 +43,23 @@ public class User {
 	)
 	private Set<Authority> authorities;
 
-	// 본인이 작성한 post와 comment의 인덱스를 저장하는 리스트
-	@JsonIgnore
-	@Builder.Default
 	@OneToMany(mappedBy = "writer", cascade = CascadeType.ALL)
 	private List<Comment> commentList = new ArrayList<>();
 
-	@JsonIgnore
-	@Builder.Default
 	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
 	private List<Post> postList = new ArrayList<>();
-
-	// 본인이 좋아요를 누를 post와 comment의 인덱스를 저장하는 리스트
-	@JsonIgnore
-	@Builder.Default
-	@ElementCollection
-	private Set<Long> postLikeIdList = new HashSet<>();
-
-	@JsonIgnore
-	@Builder.Default
-	@ElementCollection
-	private Set<Long> commentLikeIdList = new HashSet<>();
 
 	public User(String subject, Collection<? extends GrantedAuthority> authorities) {
 		this.username = subject;
 		this.authorities = new HashSet<>((Collection<? extends Authority>)authorities);
+	}
+
+	@Builder
+	public User(String username, String name, String email, String password, Set<Authority> authorities) {
+		this.username = username;
+		this.name = name;
+		this.email = email;
+		this.password = password;
+		this.authorities = authorities;
 	}
 }
