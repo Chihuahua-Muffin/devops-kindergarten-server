@@ -43,26 +43,17 @@ public class AuthController {
         if(!userService.validatePassword(loginDto.getUsername(), loginDto.getPassword())){
             throw new LoginException("해당 아이디와 패스워드 정보가 다릅니다.");
         }
-
-//        UsernamePasswordAuthenticationToken authenticationToken =
-//                new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
-
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(
-                new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
+        UsernamePasswordAuthenticationToken authenticationToken =
+               new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
-        String jwt = tokenProvider.createToken(authentication);
-
+        String accessToken = tokenProvider.createToken(authentication);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
 
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
-        httpHeaders.add("Set-cookie",refreshToken.getToken());
-
-        return new ResponseEntity<>(new TokenDto(jwt),httpHeaders,HttpStatus.OK);
+        return ResponseEntity.ok(new TokenDto(accessToken,refreshToken.getToken()));
     }
 
     @ApiOperation(value = "회원가입 기능",notes="회원가입하는데 사용된다.")
@@ -71,19 +62,16 @@ public class AuthController {
         return ResponseEntity.ok(userService.signup(userDto));
     }
     @PostMapping("/api/refresh")
-    public ResponseEntity<?> refresh(@Valid @RequestBody TokenRefreshRequest request) {
+    public ResponseEntity<TokenDto> refresh(@Valid @RequestBody TokenRefreshRequest request) {
         String requestRefreshToken = request.getRefreshToken();
 
         return refreshTokenService.findByToken(requestRefreshToken)
                 .map(refreshTokenService::verifyExpiration)
                 .map(RefreshToken::getUser)
                 .map(user -> {
-                    String jwt = tokenProvider.createTokenFromUsername(user.getUsername());
-                    HttpHeaders httpHeaders = new HttpHeaders();
-                    httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
-                    httpHeaders.add("Set-cookie",requestRefreshToken);
+                    String accessToken = tokenProvider.createTokenFromUsername(user.getUsername());
 
-                    return new ResponseEntity<>(new TokenDto(jwt), httpHeaders, HttpStatus.OK);
+                    return ResponseEntity.ok(new TokenDto(accessToken, requestRefreshToken));
                 })
                 .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
                         "RefreshToken이 존재하지 않습니다."));

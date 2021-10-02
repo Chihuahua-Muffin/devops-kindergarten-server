@@ -2,12 +2,15 @@ package devops.kindergarten.server.dto;
 
 import lombok.*;
 
-@Getter @Setter
+@Getter
+@Setter
 @NoArgsConstructor
 public class TokenDto {
-    private String token;
+	private String accessToken;
+	private String refreshToken;
 
-    public TokenDto(String token) {
-        this.token = token;
-    }
+	public TokenDto(String accessToken, String refreshToken) {
+		this.accessToken = accessToken;
+		this.refreshToken = refreshToken;
+	}
 }
