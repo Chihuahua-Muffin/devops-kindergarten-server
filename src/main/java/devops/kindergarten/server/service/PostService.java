@@ -43,18 +43,15 @@ public class PostService {
                 .orElseThrow(()->new PostNotFoundException("해당 게시글이 없습니다. id="+id));
         entity.setHit(entity.getHit()+1);
         postRepository.save(entity);
-        return new PostResponseDto(entity,false);
+        return new PostResponseDto(entity);
     }
     @Transactional
     public PostResponseDto findByIdWithViewer(Long id,String username){
         Post entity = postRepository.findById(id)
                 .orElseThrow(()->new PostNotFoundException("해당 게시글이 없습니다. id="+id));
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(()->new UserNotFoundException("해당 유저가 존재하지 않습니다."));
         entity.setHit(entity.getHit()+1);
         postRepository.save(entity);
-        boolean viewerHasLiked = user.getPostLikeIdList().contains(id);
-        return new PostResponseDto(entity,viewerHasLiked);
+        return new PostResponseDto(entity);
     }
     @Transactional(readOnly = true)
     public List<PostListResponseDto> findAllByCategoryAndLimitAndOffset(String category, int offset){
@@ -78,28 +75,6 @@ public class PostService {
         user.getPostList().remove(post);
         userRepository.save(user);
         postRepository.delete(post);
-    }
-    @Transactional
-    public PostLikeResponseDto userLikePost(PostLikeRequestDto requestDto) {
-        String username = requestDto.getUsername();
-        Long postId = requestDto.getPostId();
-
-        User user = userRepository.findOneWithAuthoritiesByUsername(username)
-                .orElseThrow(()->new UsernameNotFoundException("해당 유저가 존재하지 않습니다."));
-        Post post = postRepository.findById(postId)
-                .orElseThrow(()->new PostNotFoundException("해당 게시글이 존재하지 않습니다."));
-        int likeCount = post.getLikeCount();
-        boolean viewerHasLike = user.getPostLikeIdList().contains(postId);
-        if(viewerHasLike){
-            user.getPostLikeIdList().remove(postId);
-            post.setLikeCount(--likeCount);
-        }else{
-            user.getPostLikeIdList().add(postId);
-            post.setLikeCount(++likeCount);
-        }
-        userRepository.save(user);
-        postRepository.save(post);
-        return new PostLikeResponseDto(!viewerHasLike,likeCount);
     }
 
     @Transactional(readOnly = true)
