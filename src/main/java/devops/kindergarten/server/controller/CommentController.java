@@ -27,13 +27,6 @@ public class CommentController {
         return commentService.save(requestDto);
     }
 
-
-    @ApiOperation(value = "댓글, 대댓글 좋아요 추가",notes="댓글, 대댓글에 좋아요를 추가하는데 사용된다.")
-    @PostMapping("/api/comment/like")
-    public CommentLikeResponseDto userLikeComment(@RequestBody CommentLikeRequestDto requestDto){
-        return commentService.userLikeComment(requestDto);
-    }
-
     @ApiOperation(value = "댓글 수정",notes="댓글을 수정하는데 사용된다.")
     @PutMapping("/api/comment/{id}")
     public Long update(@PathVariable Long id, @RequestBody CommentUpdateRequestDto requestDto){
@@ -58,10 +51,6 @@ public class CommentController {
             return commentService.findAllByPostIdAndUsername(postId,username);
         }
     }
-//    @GetMapping("/api/comments/{userId}")
-//    public List<CommentResponseDto> findAllByUserId(@PathVariable Long userId){
-//        return commentService.findAllByUserId(userId);
-//    }
 
     @ApiOperation(value = "유저가 작성한 댓글 목록 불러오기",notes="유저가 작성한 댓글 목록 불러온다.")
     @GetMapping("/api/comments/{username}")

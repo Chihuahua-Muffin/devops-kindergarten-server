@@ -24,9 +24,6 @@ public class Comment {
 	@Column(name = "content", nullable = false, columnDefinition = "TEXT")
 	private String content;
 
-	@Column(name = "like_count")
-	private int likeCount;
-
 	private String username;
 
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -70,7 +67,6 @@ public class Comment {
 		comment.setPost(post);
 		comment.setContent(content);
 		comment.setUsername(username);
-		comment.setLikeCount(0);
 		comment.setCreatedDate(now);
 		comment.setUpdatedDate(now);
 
@@ -85,7 +81,6 @@ public class Comment {
 		comment.setPost(post);
 		comment.setContent(content);
 		comment.setUsername(username);
-		comment.setLikeCount(0);
 		comment.setCreatedDate(now);
 		comment.setUpdatedDate(now);
 		comment.setParent(parent);

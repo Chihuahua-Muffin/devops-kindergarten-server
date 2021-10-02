@@ -33,9 +33,6 @@ public class Post {
     @Column(nullable = false)
     private String category;
 
-    @Column(name="like_count")
-    private int likeCount;
-
     private int hit;
 
     private LocalDateTime createdDate;

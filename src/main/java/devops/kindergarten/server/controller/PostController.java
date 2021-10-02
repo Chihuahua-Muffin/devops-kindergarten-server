@@ -47,12 +47,6 @@ public class PostController {
         return id;
     }
 
-    @ApiOperation(value = "글 좋아요 기능",notes="글에 좋아요를 표시하거나 삭제하는데 사용되는 기능이다.")
-    @PostMapping("/api/post/like")
-    public PostLikeResponseDto userLikePost(@RequestBody PostLikeRequestDto requestDto){
-        return postService.userLikePost(requestDto);
-    }
-
     // category 해당하는 글을 offset(글 페이지)에 맞춰서 10개씩 반환해준다.
     @ApiOperation(value = "글 목록 불러오기 기능 1",notes="해당 카테고리에 맞게 글 목록을 불러오는 기능이다.")
     @GetMapping("/api/posts/{category}")
