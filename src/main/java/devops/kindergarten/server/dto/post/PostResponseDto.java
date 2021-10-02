@@ -16,34 +16,17 @@ public class PostResponseDto {
     private String content;
     private String username;
     private String category;
-    private int likeCount;
     private int hit;
-
-    private boolean viewerHasLike;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
 
-    /*public PostResponseDto(Post entity) {
+    public PostResponseDto(Post entity) {
         this.id = entity.getId();
         this.title =entity.getTitle();
         this.content = entity.getContent();
         this.username = entity.getUsername();
         this.category = entity.getCategory();
-        this.likeCount = entity.getLikeCount();
         this.hit = entity.getHit();
-        this.createdDate = entity.getCreatedDate().toString();
-        this.updatedDate = entity.getUpdatedDate().toString();
-    }*/
-
-    public PostResponseDto(Post entity,boolean viewerHasLike) {
-        this.id = entity.getId();
-        this.title =entity.getTitle();
-        this.content = entity.getContent();
-        this.username = entity.getUsername();
-        this.category = entity.getCategory();
-        this.likeCount = entity.getLikeCount();
-        this.hit = entity.getHit();
-        this.viewerHasLike = viewerHasLike;
         this.createdDate = entity.getCreatedDate();
         this.updatedDate = entity.getUpdatedDate();
     }
