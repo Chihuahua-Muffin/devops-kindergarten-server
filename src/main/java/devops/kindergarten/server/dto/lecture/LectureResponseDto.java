@@ -13,14 +13,12 @@ public class LectureResponseDto {
     private Long id;
     private String title;
     private ImageFile thumbnail;
-    private String description;
-    private List<String> tagList;
+    private String content;
 
     public LectureResponseDto(Lecture entity,ImageFile image) {
         this.id = entity.getId();
         this.title = entity.getTitle();
-        this.description = entity.getDescription();
-        this.tagList = entity.getTagList();
+        this.content = entity.getContent();
         this.thumbnail = image;
     }
 }

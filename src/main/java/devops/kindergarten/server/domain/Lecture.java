@@ -28,23 +28,19 @@ public class Lecture {
     private ImageFile thumbnail;
 
     @Column(nullable = false)
-    private String description;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> tagList = new ArrayList<>();
+    @Lob
+    private String content;
 
     @Builder
-    public Lecture(String title, ImageFile thumbnail, String description, List<String> tagList) {
+    public Lecture(String title, ImageFile thumbnail, String content) {
         this.title = title;
         this.thumbnail = thumbnail;
-        this.description = description;
-        this.tagList = tagList;
+        this.content = content;
     }
 
-    public void update(String title, ImageFile thumbnail, String description, List<String> tagList) {
+    public void update(String title, ImageFile thumbnail, String content) {
         this.title = title;
         this.thumbnail = thumbnail;
-        this.description = description;
-        this.tagList = tagList;
+        this.content = content;
     }
 }
