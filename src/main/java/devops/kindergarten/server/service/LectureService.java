@@ -46,7 +46,7 @@ public class LectureService {
         ObjectMapper objectMapper = new ObjectMapper();
         LectureRequestDto requestDto = objectMapper.readValue(request,LectureRequestDto.class);
         imageFile.update(image.getOriginalFilename(),image.getContentType(),image.getBytes());
-        lecture.update(requestDto.getTitle(), imageFile, requestDto.getDescription(), requestDto.getTagList());
+        lecture.update(requestDto.getTitle(), imageFile, requestDto.getContent());
 
         return id;
     }
