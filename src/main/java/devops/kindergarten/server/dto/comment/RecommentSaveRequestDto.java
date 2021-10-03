@@ -10,20 +10,20 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class RecommentSaveRequestDto {
-    private String content;
-    private String username;
-    private Long postId;
-    private Long parentId;
+	private String content;
+	private String username;
+	private Long postId;
+	private Long parentId;
 
-    @Builder
-    public RecommentSaveRequestDto(String content, String username, Long postId, Long parentId){
-        this.content = content;
-        this.username = username;
-        this.postId = postId;
-        this.parentId = parentId;
-    }
+	@Builder
+	public RecommentSaveRequestDto(String content, String username, Long postId, Long parentId) {
+		this.content = content;
+		this.username = username;
+		this.postId = postId;
+		this.parentId = parentId;
+	}
 
-    public Comment toEntity(User writer,Post post,Comment parent){
-        return Comment.createChildComment(writer,post,parent,content,username);
-    }
+	public Comment toEntity(User writer, Post post, Comment parent) {
+		return Comment.createChildComment(writer, post, parent, content, username);
+	}
 }

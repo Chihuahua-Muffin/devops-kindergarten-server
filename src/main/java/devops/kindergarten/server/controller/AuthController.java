@@ -13,6 +13,7 @@ import devops.kindergarten.server.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,54 +33,55 @@ import javax.validation.Valid;
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
-    private final TokenProvider tokenProvider;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    private final UserService userService;
-    private final RefreshTokenService refreshTokenService;
+	private final TokenProvider tokenProvider;
+	private final AuthenticationManagerBuilder authenticationManagerBuilder;
+	private final UserService userService;
+	private final RefreshTokenService refreshTokenService;
 
-    @ApiOperation(value = "로그인 기능",notes="로그인하는데 사용된다.")
-    @PostMapping("/api/login")
-    public ResponseEntity<TokenDto> authorize(@Valid @RequestBody LoginDto loginDto) {
-        if(!userService.validatePassword(loginDto.getUsername(), loginDto.getPassword())){
-            throw new LoginException("해당 아이디와 패스워드 정보가 다릅니다.");
-        }
-        UsernamePasswordAuthenticationToken authenticationToken =
-               new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+	@ApiOperation(value = "로그인 기능", notes = "로그인하는데 사용된다.")
+	@PostMapping("/api/login")
+	public ResponseEntity<TokenDto> authorize(@Valid @RequestBody LoginDto loginDto) {
+		if (!userService.validatePassword(loginDto.getUsername(), loginDto.getPassword())) {
+			throw new LoginException("해당 아이디와 패스워드 정보가 다릅니다.");
+		}
+		UsernamePasswordAuthenticationToken authenticationToken =
+			new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
+		Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		UserDetailsImpl userDetails = (UserDetailsImpl)authentication.getPrincipal();
 
-        String accessToken = tokenProvider.createToken(authentication);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
+		String accessToken = tokenProvider.createToken(authentication);
+		RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
 
-        return ResponseEntity.ok(new TokenDto(accessToken,refreshToken.getToken()));
-    }
+		return ResponseEntity.ok(new TokenDto(accessToken, refreshToken.getToken()));
+	}
 
-    @ApiOperation(value = "회원가입 기능",notes="회원가입하는데 사용된다.")
-    @PostMapping("/api/signup")
-    public ResponseEntity<User> signup(@Valid @RequestBody UserDto userDto) {
-        return ResponseEntity.ok(userService.signup(userDto));
-    }
-    @PostMapping("/api/refresh")
-    public ResponseEntity<TokenDto> refresh(@Valid @RequestBody TokenRefreshRequest request) {
-        String requestRefreshToken = request.getRefreshToken();
+	@ApiOperation(value = "회원가입 기능", notes = "회원가입하는데 사용된다.")
+	@PostMapping("/api/signup")
+	public ResponseEntity<User> signup(@Valid @RequestBody UserDto userDto) {
+		return ResponseEntity.ok(userService.signup(userDto));
+	}
 
-        return refreshTokenService.findByToken(requestRefreshToken)
-                .map(refreshTokenService::verifyExpiration)
-                .map(RefreshToken::getUser)
-                .map(user -> {
-                    String accessToken = tokenProvider.createTokenFromUsername(user.getUsername());
+	@PostMapping("/api/refresh")
+	public ResponseEntity<TokenDto> refresh(@Valid @RequestBody TokenRefreshRequest request) {
+		String requestRefreshToken = request.getRefreshToken();
 
-                    return ResponseEntity.ok(new TokenDto(accessToken, requestRefreshToken));
-                })
-                .orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
-                        "RefreshToken이 존재하지 않습니다."));
-    }
+		return refreshTokenService.findByToken(requestRefreshToken)
+			.map(refreshTokenService::verifyExpiration)
+			.map(RefreshToken::getUser)
+			.map(user -> {
+				String accessToken = tokenProvider.createTokenFromUsername(user.getUsername());
 
-    @PostMapping("/api/logout")
-    public ResponseEntity<String> logoutUser(@Valid @RequestBody LogoutRequest logoutRequest) {
-        refreshTokenService.deleteByUsername(logoutRequest.getUsername());
-        return ResponseEntity.ok("Logout");
-    }
+				return ResponseEntity.ok(new TokenDto(accessToken, requestRefreshToken));
+			})
+			.orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
+				"RefreshToken이 존재하지 않습니다."));
+	}
+
+	@PostMapping("/api/logout")
+	public ResponseEntity<String> logoutUser(@Valid @RequestBody LogoutRequest logoutRequest) {
+		refreshTokenService.deleteByUsername(logoutRequest.getUsername());
+		return ResponseEntity.ok("Logout");
+	}
 }
