@@ -10,15 +10,15 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 public class LectureResponseDto {
-    private Long id;
-    private String title;
-    private ImageFile thumbnail;
-    private String content;
+	private Long id;
+	private String title;
+	private ImageFile thumbnail;
+	private String content;
 
-    public LectureResponseDto(Lecture entity,ImageFile image) {
-        this.id = entity.getId();
-        this.title = entity.getTitle();
-        this.content = entity.getContent();
-        this.thumbnail = image;
-    }
+	public LectureResponseDto(Lecture entity, ImageFile image) {
+		this.id = entity.getId();
+		this.title = entity.getTitle();
+		this.content = entity.getContent();
+		this.thumbnail = image;
+	}
 }

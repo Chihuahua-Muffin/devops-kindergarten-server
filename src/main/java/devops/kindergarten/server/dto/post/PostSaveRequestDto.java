@@ -10,19 +10,20 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class PostSaveRequestDto {
-    private String title;
-    private String content;
-    private String category;
-    private String username;
-    @Builder
-    public PostSaveRequestDto(String title, String content,String username,String category){
-        this.title = title;
-        this.content = content;
-        this.username = username;
-        this.category = category;
-    }
+	private String title;
+	private String content;
+	private String category;
+	private String username;
 
-    public Post toEntity(User author){
-        return Post.createPost(author,title,content,username,category);
-    }
+	@Builder
+	public PostSaveRequestDto(String title, String content, String username, String category) {
+		this.title = title;
+		this.content = content;
+		this.username = username;
+		this.category = category;
+	}
+
+	public Post toEntity(User author) {
+		return Post.createPost(author, title, content, username, category);
+	}
 }
