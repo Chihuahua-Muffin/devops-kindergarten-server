@@ -21,18 +21,18 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
 public class TokenProvider implements InitializingBean {
 	private final Logger logger = LoggerFactory.getLogger(TokenProvider.class);
-	private static final String AUTHORITIES_KEY = "auth";
 
 	private final String secret;
 	private final long tokenValidityInMilliseconds;
 
 	private Key key;
-	private final CustomUserDetailsService userDetailsService;
 
 	public TokenProvider(
 		@Value("${jwt.secret}") String secret,
@@ -40,7 +40,6 @@ public class TokenProvider implements InitializingBean {
 		CustomUserDetailsService userDetailsService) {
 		this.secret = secret;
 		this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
-		this.userDetailsService = userDetailsService;
 	}
 
 	@Override
@@ -49,64 +48,38 @@ public class TokenProvider implements InitializingBean {
 		this.key = Keys.hmacShaKeyFor(keyBytes);
 	}
 
-	// token 을 만들 때 사용하는 함수
-	// AuthController 에서 로그인 때 사용
-	public String createToken(Authentication authentication) {
-		Date now = new Date();
-		Date validity = new Date(now.getTime() + this.tokenValidityInMilliseconds);
-
-		return Jwts.builder()
-			.setSubject(authentication.getName())
-			.signWith(key, SignatureAlgorithm.HS512)
-			.setIssuedAt(now)
-			.setExpiration(validity)
-			.compact();
-	}
-
 	public String createTokenFromPrincipal(UserDetailsImpl userDetails) {
-		return createTokenFromUsername(userDetails.getUsername());
-	}
-
-	public String createTokenFromUsername(String username) {
 		Date now = new Date();
 		Date validity = new Date(now.getTime() + this.tokenValidityInMilliseconds);
+		String authorities = userDetails.getAuthorities().stream()
+			.map(GrantedAuthority::getAuthority)
+			.collect(Collectors.joining(","));
 
 		return Jwts.builder()
-			.setSubject(username)
+			.setSubject(userDetails.getUsername())
 			.signWith(key, SignatureAlgorithm.HS512)
+			.claim("userId", userDetails.getUserId())
+			.claim("role", authorities)
 			.setIssuedAt(now)
 			.setExpiration(validity)
 			.compact();
 	}
 
-    /* //token 에서 Authentication 반환해줌
-    public Authentication getAuthenticationFromJwtToken(String token) {
-        Claims claims = Jwts
-                .parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-
-        Collection<? extends GrantedAuthority> authorities =
-                Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
-
-        UserDetails principal = new User(claims.getSubject(), authorities);
-
-        return new UsernamePasswordAuthenticationToken(principal, token, authorities);
-    }*/
-
-	public UsernamePasswordAuthenticationToken getUserNameFromJwtToken(String token) {
-		String username = Jwts
+	//token 에서 Authentication 반환해줌
+	public UsernamePasswordAuthenticationToken getUsernameFromJwtToken(String token) {
+		Claims claims = Jwts
 			.parserBuilder()
 			.setSigningKey(key)
 			.build()
 			.parseClaimsJws(token)
-			.getBody().getSubject();
-		UserDetails principal = userDetailsService.loadUserByUsername(username);
-		return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
+			.getBody();
+
+		Collection<? extends GrantedAuthority> authorities =
+			Arrays.stream(claims.get("role").toString().split(","))
+				.map(SimpleGrantedAuthority::new)
+				.collect(Collectors.toList());
+
+		return new UsernamePasswordAuthenticationToken(new User(claims.getSubject(), authorities), token, authorities);
 	}
 
 	public boolean validateToken(String token) {

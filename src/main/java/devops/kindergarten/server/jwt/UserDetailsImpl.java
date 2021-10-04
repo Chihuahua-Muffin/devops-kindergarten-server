@@ -15,7 +15,6 @@ public class UserDetailsImpl implements UserDetails {
 	private static final long serialVersionUID = 1L;
 
 	private final User user;
-
 	private final Collection<? extends GrantedAuthority> authorities;
 
 	public UserDetailsImpl(User user, Collection<? extends GrantedAuthority> authorities) {
@@ -28,6 +27,10 @@ public class UserDetailsImpl implements UserDetails {
 			.map(role -> new SimpleGrantedAuthority(role.getAuthorityName()))
 			.collect(Collectors.toList());
 		return new UserDetailsImpl(user, authorities);
+	}
+
+	public Long getUserId() {
+		return user.getId();
 	}
 
 	@Override
@@ -73,5 +76,10 @@ public class UserDetailsImpl implements UserDetails {
 			return false;
 		UserDetailsImpl user = (UserDetailsImpl)o;
 		return Objects.equals(this.getUsername(), user.getUsername());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(user, getAuthorities());
 	}
 }

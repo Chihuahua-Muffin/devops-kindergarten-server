@@ -51,7 +51,7 @@ public class AuthController {
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		UserDetailsImpl userDetails = (UserDetailsImpl)authentication.getPrincipal();
 
-		String accessToken = tokenProvider.createToken(authentication);
+		String accessToken = tokenProvider.createTokenFromPrincipal(userDetails);
 		RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
 
 		return ResponseEntity.ok(new TokenDto(accessToken, refreshToken.getToken()));
@@ -71,7 +71,8 @@ public class AuthController {
 			.map(refreshTokenService::verifyExpiration)
 			.map(RefreshToken::getUser)
 			.map(user -> {
-				String accessToken = tokenProvider.createTokenFromUsername(user.getUsername());
+				UserDetailsImpl userDetails = UserDetailsImpl.build(user);
+				String accessToken = tokenProvider.createTokenFromPrincipal(userDetails);
 
 				return ResponseEntity.ok(new TokenDto(accessToken, requestRefreshToken));
 			})
