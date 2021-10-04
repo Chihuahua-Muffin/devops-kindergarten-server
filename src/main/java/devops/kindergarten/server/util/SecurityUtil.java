@@ -34,7 +34,6 @@ public class SecurityUtil {
 			username = ((User)authentication.getPrincipal()).getUsername();
 		}
 
-		logger.debug("username " + username);
 		return Optional.ofNullable(username);
 	}
 }
