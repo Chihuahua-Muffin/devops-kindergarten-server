@@ -31,8 +31,8 @@ public class Comment {
 	private User writer;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_id")
-	private Post post;
+	@JoinColumn(name = "lecture_id")
+	private Lecture lecture;
 
 	private LocalDateTime createdDate;
 	private LocalDateTime updatedDate;
@@ -41,7 +41,7 @@ public class Comment {
 	@JoinColumn(name = "parent_id")
 	private Comment parent;
 
-	@OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "parent", orphanRemoval = true)
 	private List<Comment> children = new ArrayList<>();
 
 	private void setWriter(User writer) {
@@ -49,41 +49,24 @@ public class Comment {
 		writer.getCommentList().add(this);
 	}
 
-	private void setPost(Post post) {
-		this.post = post;
-		post.getCommentList().add(this);
-	}
-
 	private void setParent(Comment parent) {
-		this.parent = parent;
-		parent.getChildren().add(this);
+		if (parent != null) {
+			this.parent = parent;
+			parent.getChildren().add(this);
+		}
 	}
 
-	public static Comment createComment(User writer, Post post, String content, String username) {
+	public static Comment createComment(User writer, Lecture lecture, Comment parent, String content, String username) {
 		Comment comment = new Comment();
 		LocalDateTime now = LocalDateTime.now();
 
 		comment.setWriter(writer);
-		comment.setPost(post);
-		comment.setContent(content);
-		comment.setUsername(username);
-		comment.setCreatedDate(now);
-		comment.setUpdatedDate(now);
-
-		return comment;
-	}
-
-	public static Comment createChildComment(User writer, Post post, Comment parent, String content, String username) {
-		Comment comment = new Comment();
-		LocalDateTime now = LocalDateTime.now();
-
-		comment.setWriter(writer);
-		comment.setPost(post);
-		comment.setContent(content);
-		comment.setUsername(username);
-		comment.setCreatedDate(now);
-		comment.setUpdatedDate(now);
+		comment.setLecture(lecture);
 		comment.setParent(parent);
+		comment.setContent(content);
+		comment.setUsername(username);
+		comment.setCreatedDate(now);
+		comment.setUpdatedDate(now);
 
 		return comment;
 	}

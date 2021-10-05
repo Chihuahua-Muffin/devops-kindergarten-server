@@ -1,13 +1,12 @@
 package devops.kindergarten.server.service;
 
 import devops.kindergarten.server.domain.Comment;
-import devops.kindergarten.server.domain.Post;
+import devops.kindergarten.server.domain.Lecture;
 import devops.kindergarten.server.domain.User;
 import devops.kindergarten.server.dto.comment.*;
 import devops.kindergarten.server.exception.custom.CommentNotFoundException;
-import devops.kindergarten.server.exception.custom.PostNotFoundException;
 import devops.kindergarten.server.repository.CommentRepository;
-import devops.kindergarten.server.repository.PostRepository;
+import devops.kindergarten.server.repository.LectureRepository;
 import devops.kindergarten.server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -23,29 +22,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentService {
 	private final CommentRepository commentRepository;
-	private final PostRepository postRepository;
+	private final LectureRepository lectureRepository;
 	private final UserRepository userRepository;
 
 	@Transactional
-	public Long save(CommentSaveRequestDto requestDto) {
-		User user = userRepository.findOneWithAuthoritiesByUsername(requestDto.getUsername())
-			.orElseThrow(() -> new UsernameNotFoundException("해당 유저가 존재하지 않습니다."));
-		Post post = postRepository.findById(requestDto.getPostId())
-			.orElseThrow(() -> new PostNotFoundException("해당 게시글을 찾을 수 없습니다."));
-
-		Comment comment = requestDto.toEntity(user, post);
-		return commentRepository.save(comment).getId();
-	}
-
-	@Transactional
-	public Long save(RecommentSaveRequestDto requestDto) {
-		User user = userRepository.findOneWithAuthoritiesByUsername(requestDto.getUsername())
-			.orElseThrow(() -> new UsernameNotFoundException("해당 유저가 존재하지 않습니다."));
-		Post post = postRepository.findById(requestDto.getPostId())
-			.orElseThrow(() -> new PostNotFoundException("해당 게시글을 찾을 수 없습니다."));
-		Comment parent = commentRepository.findById(requestDto.getParentId())
-			.orElseThrow(() -> new CommentNotFoundException("해당 덧글을 찾을 수 없습니다."));
-		Comment comment = requestDto.toEntity(user, post, parent);
+	public Long save(CommentSaveRequestDto requestDto, Long lectureId) {
+		User user = userRepository.findById(requestDto.getUserId()).orElseThrow();
+		Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
+		Comment comment;
+		if (requestDto.getParentId() == null) {
+			comment = Comment.createComment(user, lecture, null, requestDto.getContent(), user.getUsername());
+		} else {
+			Comment parentComment = commentRepository.findById(requestDto.getParentId()).orElseThrow();
+			comment = Comment.createComment(user, lecture, parentComment, requestDto.getContent(), user.getUsername());
+		}
 		return commentRepository.save(comment).getId();
 	}
 
@@ -58,9 +48,9 @@ public class CommentService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<CommentResponseDto> findAllByPostId(Long postId) {
+	public List<CommentResponseDto> findAllByPageId(Long pageId) {
 		List<CommentResponseDto> result = new ArrayList<>();
-		List<Comment> commentList = commentRepository.findAllByPostId(postId);
+		List<Comment> commentList = commentRepository.findAllByLectureId(pageId);
 		for (Comment comment : commentList) {
 			if (comment.getParent() == null) {
 				result.add(new CommentResponseDto(comment));
@@ -69,28 +59,7 @@ public class CommentService {
 		for (CommentResponseDto commentResponseDto : result) {
 			for (Comment comment : commentList) {
 				if (comment.getParent() != null) {
-					if (commentResponseDto.getId().equals(comment.getParent().getId())) {
-						commentResponseDto.getRecommentList().add(new CommentResponseDto(comment));
-					}
-				}
-			}
-		}
-		return result;
-	}
-
-	@Transactional(readOnly = true)
-	public List<CommentResponseDto> findAllByPostIdAndUsername(Long postId, String username) {
-		List<CommentResponseDto> result = new ArrayList<>();
-		List<Comment> commentList = commentRepository.findAllByPostId(postId);
-		for (Comment comment : commentList) {
-			if (comment.getParent() == null) {
-				result.add(new CommentResponseDto(comment));
-			}
-		}
-		for (CommentResponseDto commentResponseDto : result) {
-			for (Comment comment : commentList) {
-				if (comment.getParent() != null) {
-					if (commentResponseDto.getId().equals(comment.getParent().getId())) {
+					if (commentResponseDto.getCommentId().equals(comment.getParent().getId())) {
 						commentResponseDto.getRecommentList().add(new CommentResponseDto(comment));
 					}
 				}
