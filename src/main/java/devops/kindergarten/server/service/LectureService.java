@@ -32,9 +32,8 @@ public class LectureService {
 		ObjectMapper objectMapper = new ObjectMapper();
 		LectureRequestDto requestDto = objectMapper.readValue(request, LectureRequestDto.class);
 		Lecture lecture = requestDto.toLectureEntity();
-		ImageFile imageFile = ImageFile.createImageFile(image.getOriginalFilename(), image.getContentType(),
+		ImageFile imageFile = ImageFile.createImageFile(lecture, image.getOriginalFilename(), image.getContentType(),
 			image.getBytes());
-		lecture.setThumbnail(imageFile);
 		imageRepository.save(imageFile);
 		return lectureRepository.save(lecture).getId();
 	}
@@ -58,10 +57,7 @@ public class LectureService {
 	public LectureResponseDto findById(Long id) {
 		Lecture lecture = lectureRepository.findById(id)
 			.orElseThrow(() -> new LectureNotFoundException("해당 강의가 없습니다. id=" + id));
-		ImageFile imageFile = imageRepository.findById(lecture.getThumbnail().getId())
-			.orElseThrow(() -> new ImageNotFoundException("해당 사진이 존재하지 않습니다."));
-
-		return new LectureResponseDto(lecture, imageFile);
+		return new LectureResponseDto(lecture, lecture.getThumbnail());
 	}
 
 	@Transactional(readOnly = true)
@@ -73,14 +69,6 @@ public class LectureService {
 			result.add(new LectureResponseDto(lecture, imageFile));
 		}
 		return result;
-	}
-
-	@Transactional
-	public Long saveImage(MultipartFile image) throws IOException {
-		return imageRepository.save(ImageFile.createImageFile(
-			image.getName(),
-			image.getContentType(),
-			image.getBytes())).getId();
 	}
 
 	@Transactional(readOnly = true)

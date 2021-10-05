@@ -1,6 +1,5 @@
 package devops.kindergarten.server.dto.comment;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -8,9 +7,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CommentUpdateRequestDto {
 	private String content;
-
-	@Builder
-	public CommentUpdateRequestDto(String content) {
-		this.content = content;
-	}
 }

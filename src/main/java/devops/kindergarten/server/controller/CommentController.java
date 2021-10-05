@@ -1,14 +1,17 @@
 package devops.kindergarten.server.controller;
 
+import devops.kindergarten.server.domain.Category;
 import devops.kindergarten.server.dto.comment.*;
 import devops.kindergarten.server.service.CommentService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @Api(tags = {"댓글관련 기능 컨트롤러"})
 @RestController
@@ -19,13 +22,11 @@ public class CommentController {
 	@ApiOperation(value = "댓글 등록", notes = "댓글을 등록하는데 사용된다.")
 	@PostMapping("/api/comment")
 	public Long save(@RequestBody CommentSaveRequestDto requestDto) {
-		return commentService.save(requestDto);
-	}
-
-	@ApiOperation(value = "대댓글 등록", notes = "대댓글을 등록하는데 사용된다.")
-	@PostMapping("/api/recomment")
-	public Long save(@RequestBody RecommentSaveRequestDto requestDto) {
-		return commentService.save(requestDto);
+		Long lectureId = requestDto.getPageId();
+		if (lectureId == null) {
+			lectureId = Category.categoryToPageId(requestDto.getPageName()).orElseThrow();
+		}
+		return commentService.save(requestDto, lectureId);
 	}
 
 	@ApiOperation(value = "댓글 수정", notes = "댓글을 수정하는데 사용된다.")
@@ -43,13 +44,14 @@ public class CommentController {
 
 	@ApiOperation(value = "댓글 목록 불러오기", notes = "해당 PostId의 post에 작성된 댓글들을 불러온다.")
 	@GetMapping("/api/comments")
-	public List<CommentResponseDto> findAllByPostId(
-		@RequestParam Long postId,
-		@RequestParam(required = false) String username) {
-		if (username == null) {
-			return commentService.findAllByPostId(postId);
+	public List<CommentResponseDto> findAllByPageId(@RequestParam(value = "id") Optional<Long> pageId,
+		@RequestParam(value = "name") Optional<String> pageName) {
+		if (pageId.isEmpty() && pageName.isPresent()) {
+			return commentService.findAllByPageId(Category.categoryToPageId(pageName.get()).orElseThrow());
+		} else if (pageId.isPresent() && pageName.isEmpty()) {
+			return commentService.findAllByPageId(pageId.get());
 		} else {
-			return commentService.findAllByPostIdAndUsername(postId, username);
+			return Collections.emptyList();
 		}
 	}
 
