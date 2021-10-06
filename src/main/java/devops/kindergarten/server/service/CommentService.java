@@ -1,5 +1,6 @@
 package devops.kindergarten.server.service;
 
+import devops.kindergarten.server.domain.TheoryPageName;
 import devops.kindergarten.server.domain.Comment;
 import devops.kindergarten.server.domain.Lecture;
 import devops.kindergarten.server.domain.User;
@@ -10,12 +11,12 @@ import devops.kindergarten.server.repository.LectureRepository;
 import devops.kindergarten.server.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,15 +27,20 @@ public class CommentService {
 	private final UserRepository userRepository;
 
 	@Transactional
-	public Long save(CommentSaveRequestDto requestDto, Long lectureId) {
+	public Long save(CommentSaveRequestDto requestDto) {
 		User user = userRepository.findById(requestDto.getUserId()).orElseThrow();
-		Lecture lecture = lectureRepository.findById(lectureId).orElseThrow();
+		Lecture lecture = null;
 		Comment comment;
+		if (requestDto.getPageId() != null) {
+			lecture = lectureRepository.findById(requestDto.getPageId()).orElseThrow();
+		}
 		if (requestDto.getParentId() == null) {
-			comment = Comment.createComment(user, lecture, null, requestDto.getContent(), user.getUsername());
+			comment = Comment.createComment(user, lecture, null, requestDto.getContent(), user.getUsername(),
+				TheoryPageName.valueOf(requestDto.getPageName().toUpperCase()));
 		} else {
 			Comment parentComment = commentRepository.findById(requestDto.getParentId()).orElseThrow();
-			comment = Comment.createComment(user, lecture, parentComment, requestDto.getContent(), user.getUsername());
+			comment = Comment.createComment(user, lecture, parentComment, requestDto.getContent(), user.getUsername(),
+				null);
 		}
 		return commentRepository.save(comment).getId();
 	}
@@ -56,13 +62,16 @@ public class CommentService {
 				result.add(new CommentResponseDto(comment));
 			}
 		}
-		for (CommentResponseDto commentResponseDto : result) {
-			for (Comment comment : commentList) {
-				if (comment.getParent() != null) {
-					if (commentResponseDto.getCommentId().equals(comment.getParent().getId())) {
-						commentResponseDto.getRecommentList().add(new CommentResponseDto(comment));
-					}
-				}
+		return result;
+	}
+
+	@Transactional(readOnly = true)
+	public List<CommentResponseDto> findAllByPageName(TheoryPageName pageName) {
+		List<CommentResponseDto> result = new ArrayList<>();
+		List<Comment> commentList = commentRepository.findAllByTheoryPage(pageName);
+		for (Comment comment : commentList) {
+			if (comment.getParent() == null) {
+				result.add(new CommentResponseDto(comment));
 			}
 		}
 		return result;

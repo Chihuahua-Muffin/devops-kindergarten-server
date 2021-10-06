@@ -2,8 +2,6 @@ package devops.kindergarten.server.domain;
 
 import lombok.*;
 
-import org.apache.tomcat.jni.Local;
-
 import javax.persistence.*;
 
 import java.time.LocalDateTime;
@@ -25,6 +23,10 @@ public class Comment {
 	private String content;
 
 	private String username;
+
+	@Column(name = "theory_page")
+	@Enumerated(EnumType.STRING)
+	private TheoryPageName theoryPage;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id")
@@ -56,7 +58,7 @@ public class Comment {
 		}
 	}
 
-	public static Comment createComment(User writer, Lecture lecture, Comment parent, String content, String username) {
+	public static Comment createComment(User writer, Lecture lecture, Comment parent, String content, String username, TheoryPageName pageName) {
 		Comment comment = new Comment();
 		LocalDateTime now = LocalDateTime.now();
 
@@ -67,7 +69,7 @@ public class Comment {
 		comment.setUsername(username);
 		comment.setCreatedDate(now);
 		comment.setUpdatedDate(now);
-
+		comment.setTheoryPage(pageName);
 		return comment;
 	}
 

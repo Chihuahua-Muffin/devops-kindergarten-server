@@ -10,7 +10,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "user", uniqueConstraints = {
-	@UniqueConstraint(columnNames = {"username"})
+	@UniqueConstraint(columnNames = {"username","email"})
 })
 @NoArgsConstructor
 @Getter
