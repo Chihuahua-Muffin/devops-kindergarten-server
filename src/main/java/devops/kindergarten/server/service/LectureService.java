@@ -1,7 +1,5 @@
 package devops.kindergarten.server.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import devops.kindergarten.server.domain.ImageFile;
 import devops.kindergarten.server.domain.Lecture;
 import devops.kindergarten.server.dto.lecture.LectureRequestDto;
@@ -19,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +25,9 @@ public class LectureService {
 	private final ImageRepository imageRepository;
 
 	@Transactional
-	public Long save(MultipartFile image, String request) throws IOException {
-		ObjectMapper objectMapper = new ObjectMapper();
-		LectureRequestDto requestDto = objectMapper.readValue(request, LectureRequestDto.class);
-		Lecture lecture = requestDto.toLectureEntity();
+	public Long save(LectureRequestDto request) throws IOException {
+		Lecture lecture = request.toLectureEntity();
+		MultipartFile image = request.getImage();
 		ImageFile imageFile = ImageFile.createImageFile(lecture, image.getOriginalFilename(), image.getContentType(),
 			image.getBytes());
 		imageRepository.save(imageFile);
@@ -39,17 +35,15 @@ public class LectureService {
 	}
 
 	@Transactional
-	public Long update(Long id, MultipartFile image, String request) throws IOException {
+	public Long update(Long id, LectureRequestDto request) throws IOException {
 		Lecture lecture = lectureRepository.findById(id)
 			.orElseThrow(() -> new LectureNotFoundException("해당 강의가 없습니다. id=" + id));
 		ImageFile imageFile = imageRepository.findById(lecture.getThumbnail().getId())
 			.orElseThrow(() -> new ImageNotFoundException("해당 사진이 존재하지 않습니다."));
 
-		ObjectMapper objectMapper = new ObjectMapper();
-		LectureRequestDto requestDto = objectMapper.readValue(request, LectureRequestDto.class);
+		MultipartFile image = request.getImage();
 		imageFile.update(image.getOriginalFilename(), image.getContentType(), image.getBytes());
-		lecture.update(requestDto.getTitle(), imageFile, requestDto.getContent());
-
+		lecture.update(request.getTitle(), imageFile, request.getContent());
 		return id;
 	}
 

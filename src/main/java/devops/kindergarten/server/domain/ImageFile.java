@@ -27,12 +27,18 @@ public class ImageFile {
 	@OneToOne(mappedBy = "thumbnail")
 	private Lecture lecture;
 
-	public static ImageFile createImageFile(String fileName, String fileType, byte[] data) {
+	public static ImageFile createImageFile(Lecture lecture, String fileName, String fileType, byte[] data) {
 		ImageFile imageFile = new ImageFile();
 		imageFile.setFileName(fileName);
 		imageFile.setFileType(fileType);
 		imageFile.setData(data);
+		imageFile.setLecture(lecture);
 		return imageFile;
+	}
+
+	private void setLecture(Lecture lecture) {
+		lecture.setThumbnail(this);
+		this.lecture = lecture;
 	}
 
 	public void update(String fileName, String fileType, byte[] data) {
