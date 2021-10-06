@@ -1,6 +1,7 @@
 package devops.kindergarten.server.controller;
 
 import devops.kindergarten.server.domain.ImageFile;
+import devops.kindergarten.server.dto.lecture.LectureRequestDto;
 import devops.kindergarten.server.dto.lecture.LectureResponseDto;
 import devops.kindergarten.server.service.LectureService;
 import io.swagger.annotations.Api;
@@ -22,25 +23,18 @@ public class LectureController {
 	private final LectureService lectureService;
 
 	@ApiOperation(value = "강의 기능", notes = "강의를 등록되는데 사용된다.")
-	@PostMapping(value = "/api/lecture", consumes = {
-		MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-	public Long save(@RequestPart(value = "request") String request,
-		@RequestPart(value = "image") MultipartFile image) throws IOException {
-		return lectureService.save(image, request);
+	@PostMapping(value = "/api/lecture", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+	public Long saveTest(@RequestPart MultipartFile image, @RequestPart String title,
+		@RequestPart String content) throws IOException {
+		return lectureService.save(new LectureRequestDto(image, title, content));
 	}
 
 	@ApiOperation(value = "강의 수정 기능", notes = "강의를 수정하는데 사용된다.")
 	@PutMapping(value = "/api/lecture/{id}", consumes = {
 		MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-	public Long update(@PathVariable Long id,
-		@RequestPart(value = "request") String request,
-		@RequestPart(value = "image") MultipartFile image) throws IOException {
-		return lectureService.update(id, image, request);
-	}
-
-	@PostMapping("/api/upload-image")
-	public Long saveImage(@RequestPart(value = "files") MultipartFile image) throws IOException {
-		return lectureService.saveImage(image);
+	public Long update(@PathVariable Long id, @RequestPart MultipartFile image, @RequestPart String title,
+		@RequestPart String content) throws IOException {
+		return lectureService.update(id, new LectureRequestDto(image, title, content));
 	}
 
 	@GetMapping("/api/image/{id}")
