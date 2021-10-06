@@ -2,7 +2,7 @@ package devops.kindergarten.server.domain;
 
 import java.util.Optional;
 
-public enum Category {
+public enum TheoryPageName {
 	PLAN(Long.MAX_VALUE - 1),
 	CODE(Long.MAX_VALUE - 2),
 	BUILD(Long.MAX_VALUE - 3),
@@ -14,7 +14,7 @@ public enum Category {
 
 	private Long id;
 
-	Category(Long id) {
+	TheoryPageName(Long id) {
 		this.id = id;
 	}
 
@@ -22,13 +22,13 @@ public enum Category {
 		return id;
 	}
 
-	public static Optional<Long> categoryToPageId(String pageName) {
-		Category[] categories = Category.values();
-		for (Category category : categories) {
-			if (category.toString().equals(pageName.toUpperCase())) {
-				return Optional.of(category.getId());
+	public static boolean isCorrectPageName(String pageName) {
+		TheoryPageName[] pageNames = TheoryPageName.values();
+		for (TheoryPageName name : pageNames) {
+			if (name.toString().equals(pageName.toUpperCase())) {
+				return true;
 			}
 		}
-		return Optional.empty();
+		return false;
 	}
 }

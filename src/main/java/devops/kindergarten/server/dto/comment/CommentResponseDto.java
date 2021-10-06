@@ -12,15 +12,17 @@ import java.util.stream.Collectors;
 public class CommentResponseDto {
 	private Long commentId;
 	private String content;
-	private LocalDateTime createdDate;
-	private LocalDateTime updatedDate;
+	private String username;
+	private String createdDate;
+	private String updatedDate;
 	private List<CommentResponseDto> recommentList;
 
 	public CommentResponseDto(Comment entity) {
 		this.commentId = entity.getId();
 		this.content = entity.getContent();
-		this.createdDate = entity.getCreatedDate();
-		this.updatedDate = entity.getUpdatedDate();
+		this.username = entity.getUsername();
+		this.createdDate = entity.getCreatedDate().toString();
+		this.updatedDate = entity.getUpdatedDate().toString();
 		this.recommentList = entity.getChildren().stream().map(CommentResponseDto::new).collect(Collectors.toList());
 	}
 }
