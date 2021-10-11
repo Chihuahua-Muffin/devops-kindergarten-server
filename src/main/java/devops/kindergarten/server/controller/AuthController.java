@@ -5,7 +5,6 @@ import devops.kindergarten.server.domain.User;
 import devops.kindergarten.server.dto.*;
 import devops.kindergarten.server.exception.custom.LoginException;
 import devops.kindergarten.server.exception.custom.TokenRefreshException;
-import devops.kindergarten.server.jwt.JwtFilter;
 import devops.kindergarten.server.jwt.TokenProvider;
 import devops.kindergarten.server.jwt.UserDetailsImpl;
 import devops.kindergarten.server.service.RefreshTokenService;
@@ -14,19 +13,15 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.Cookie;
 import javax.validation.Valid;
 
 @Api(tags = {"로그인 관련 컨트롤러"})
@@ -53,8 +48,11 @@ public class AuthController {
 
 		String accessToken = tokenProvider.createTokenFromPrincipal(userDetails);
 		RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
-
-		return ResponseEntity.ok(new TokenDto(accessToken, refreshToken.getToken()));
+		TokenDto tokenDto = new TokenDto(accessToken, refreshToken.getToken(), userDetails.getUserId(),
+			userDetails.getUsername(),
+			userDetails.getAuthorities(),
+			tokenProvider.getExp(accessToken));
+		return ResponseEntity.ok(tokenDto);
 	}
 
 	@ApiOperation(value = "회원가입 기능", notes = "회원가입하는데 사용된다.")
@@ -73,8 +71,11 @@ public class AuthController {
 			.map(user -> {
 				UserDetailsImpl userDetails = UserDetailsImpl.build(user);
 				String accessToken = tokenProvider.createTokenFromPrincipal(userDetails);
-
-				return ResponseEntity.ok(new TokenDto(accessToken, requestRefreshToken));
+				TokenDto tokenDto = new TokenDto(accessToken, requestRefreshToken, userDetails.getUserId(),
+					userDetails.getUsername(),
+					userDetails.getAuthorities(),
+					tokenProvider.getExp(accessToken));
+				return ResponseEntity.ok(tokenDto);
 			})
 			.orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
 				"RefreshToken이 존재하지 않습니다."));
