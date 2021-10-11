@@ -82,6 +82,15 @@ public class TokenProvider implements InitializingBean {
 		return new UsernamePasswordAuthenticationToken(new User(claims.getSubject(), authorities), token, authorities);
 	}
 
+	public Integer getExp(String token) {
+		return (Integer)Jwts
+			.parserBuilder()
+			.setSigningKey(key)
+			.build()
+			.parseClaimsJws(token)
+			.getBody().get("exp");
+	}
+
 	public boolean validateToken(String token) {
 		try {
 			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
