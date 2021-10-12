@@ -67,4 +67,11 @@ public class RefreshTokenService {
 			UserNotFoundException::new
 		));
 	}
+
+	@Transactional
+	public boolean hasAnyRefreshTokenByUsername(String username) {
+		return refreshTokenRepository.existsByUser(userRepository.findByUsername(username).orElseThrow(
+			UserNotFoundException::new
+		));
+	}
 }

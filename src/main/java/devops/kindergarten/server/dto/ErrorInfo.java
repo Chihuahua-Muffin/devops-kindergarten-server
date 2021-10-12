@@ -20,7 +20,7 @@ public class ErrorInfo {
 
 	private String httpMethod;
 
-	private LocalDateTime timestamp;
+	private String timestamp;
 
 	@JsonProperty("uri")
 	private String uriRequested;
@@ -31,6 +31,6 @@ public class ErrorInfo {
 		this.httpStatus = HttpStatus.BAD_REQUEST.value();
 		this.httpMethod = httpMethod;
 		this.uriRequested = uriRequested;
-		this.timestamp = LocalDateTime.now();
+		this.timestamp = LocalDateTime.now().toString();
 	}
 }
