@@ -4,7 +4,6 @@ import devops.kindergarten.server.domain.RefreshToken;
 import devops.kindergarten.server.domain.User;
 import devops.kindergarten.server.dto.*;
 import devops.kindergarten.server.exception.custom.LoginException;
-import devops.kindergarten.server.exception.custom.TokenRefreshException;
 import devops.kindergarten.server.jwt.TokenProvider;
 import devops.kindergarten.server.jwt.UserDetailsImpl;
 import devops.kindergarten.server.service.RefreshTokenService;
@@ -64,21 +63,14 @@ public class AuthController {
 	@PostMapping("/api/refresh")
 	public ResponseEntity<TokenDto> refresh(@Valid @RequestBody TokenRefreshRequest request) {
 		String requestRefreshToken = request.getRefreshToken();
-
-		return refreshTokenService.findByToken(requestRefreshToken)
-			.map(refreshTokenService::verifyExpiration)
-			.map(RefreshToken::getUser)
-			.map(user -> {
-				UserDetailsImpl userDetails = UserDetailsImpl.build(user);
-				String accessToken = tokenProvider.createTokenFromPrincipal(userDetails);
-				TokenDto tokenDto = new TokenDto(accessToken, requestRefreshToken, userDetails.getUserId(),
-					userDetails.getUsername(),
-					userDetails.getAuthorities(),
-					tokenProvider.getExp(accessToken));
-				return ResponseEntity.ok(tokenDto);
-			})
-			.orElseThrow(() -> new TokenRefreshException(requestRefreshToken,
-				"RefreshToken이 존재하지 않습니다."));
+		User user = refreshTokenService.verifyExpirationAndGetUser(requestRefreshToken);
+		UserDetailsImpl userDetails = UserDetailsImpl.build(user);
+		String accessToken = tokenProvider.createTokenFromPrincipal(userDetails);
+		TokenDto tokenDto = new TokenDto(accessToken, requestRefreshToken, userDetails.getUserId(),
+			userDetails.getUsername(),
+			userDetails.getAuthorities(),
+			tokenProvider.getExp(accessToken));
+		return ResponseEntity.ok(tokenDto);
 	}
 
 	@PostMapping("/api/logout")

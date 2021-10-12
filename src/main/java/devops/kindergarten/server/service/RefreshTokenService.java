@@ -1,6 +1,8 @@
 package devops.kindergarten.server.service;
 
 import devops.kindergarten.server.domain.RefreshToken;
+import devops.kindergarten.server.domain.User;
+import devops.kindergarten.server.dto.TokenDto;
 import devops.kindergarten.server.exception.custom.TokenRefreshException;
 import devops.kindergarten.server.exception.custom.UserNotFoundException;
 import devops.kindergarten.server.repository.RefreshTokenRepository;
@@ -44,12 +46,14 @@ public class RefreshTokenService {
 	}
 
 	@Transactional
-	public RefreshToken verifyExpiration(RefreshToken token) {
-		if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
-			refreshTokenRepository.deleteById(token.getId());
-			throw new TokenRefreshException(token.getToken(), "토큰이 만료되었습니다. 새롭게 로그인해 주세요.");
+	public User verifyExpirationAndGetUser(String token) {
+		RefreshToken refreshToken = findByToken(token).orElseThrow(() -> new TokenRefreshException(token,
+			"RefreshToken이 존재하지 않습니다."));
+		if (refreshToken.getExpiryDate().compareTo(Instant.now()) < 0) {
+			refreshTokenRepository.deleteById(refreshToken.getId());
+			throw new TokenRefreshException(refreshToken.getToken(), "토큰이 만료되었습니다. 새롭게 로그인해 주세요.");
 		}
-		return token;
+		return userRepository.findOneWithAuthoritiesByUsername(refreshToken.getUser().getUsername()).orElseThrow();
 	}
 
 	@Transactional
