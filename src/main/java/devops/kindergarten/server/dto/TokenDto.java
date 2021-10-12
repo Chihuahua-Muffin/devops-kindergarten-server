@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.security.core.GrantedAuthority;
 
-import devops.kindergarten.server.domain.Authority;
 import lombok.*;
 
 @Getter
@@ -21,14 +20,16 @@ public class TokenDto {
 	private String username;
 	private List<String> authority;
 	private Integer exp;
+	private long refreshExp;
 
 	public TokenDto(String accessToken, String refreshToken, Long userId, String username,
-		Collection<? extends GrantedAuthority> authority, Integer exp) {
+		Collection<? extends GrantedAuthority> authority, Integer exp, long refreshExp) {
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.userId = userId;
 		this.username = username;
 		this.authority = authority.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 		this.exp = exp;
+		this.refreshExp = refreshExp;
 	}
 }
