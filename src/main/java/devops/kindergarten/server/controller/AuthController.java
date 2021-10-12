@@ -38,6 +38,10 @@ public class AuthController {
 		if (!userService.validatePassword(loginDto.getUsername(), loginDto.getPassword())) {
 			throw new LoginException("해당 아이디와 패스워드 정보가 다릅니다.");
 		}
+		if (refreshTokenService.hasAnyRefreshTokenByUsername(loginDto.getUsername())) {
+			refreshTokenService.deleteByUsername(loginDto.getUsername());
+			throw new LoginException("다시 로그인을 시도해주세요.");
+		}
 		UsernamePasswordAuthenticationToken authenticationToken =
 			new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
 		Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
