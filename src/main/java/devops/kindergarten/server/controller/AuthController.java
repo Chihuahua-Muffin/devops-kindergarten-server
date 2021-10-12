@@ -47,10 +47,12 @@ public class AuthController {
 
 		String accessToken = tokenProvider.createTokenFromPrincipal(userDetails);
 		RefreshToken refreshToken = refreshTokenService.createRefreshToken(userDetails.getUsername());
+
 		TokenDto tokenDto = new TokenDto(accessToken, refreshToken.getToken(), userDetails.getUserId(),
 			userDetails.getUsername(),
 			userDetails.getAuthorities(),
-			tokenProvider.getExp(accessToken));
+			tokenProvider.getExp(accessToken),
+			refreshToken.getExpiryDate().getEpochSecond());
 		return ResponseEntity.ok(tokenDto);
 	}
 
@@ -62,14 +64,15 @@ public class AuthController {
 
 	@PostMapping("/api/refresh")
 	public ResponseEntity<TokenDto> refresh(@Valid @RequestBody TokenRefreshRequest request) {
-		String requestRefreshToken = request.getRefreshToken();
-		User user = refreshTokenService.verifyExpirationAndGetUser(requestRefreshToken);
+		String token = request.getRefreshToken();
+		User user = refreshTokenService.verifyExpirationAndGetUser(token);
 		UserDetailsImpl userDetails = UserDetailsImpl.build(user);
 		String accessToken = tokenProvider.createTokenFromPrincipal(userDetails);
-		TokenDto tokenDto = new TokenDto(accessToken, requestRefreshToken, userDetails.getUserId(),
+		TokenDto tokenDto = new TokenDto(accessToken, token, userDetails.getUserId(),
 			userDetails.getUsername(),
 			userDetails.getAuthorities(),
-			tokenProvider.getExp(accessToken));
+			tokenProvider.getExp(accessToken),
+			refreshTokenService.getRefreshTokenExp(token));
 		return ResponseEntity.ok(tokenDto);
 	}
 

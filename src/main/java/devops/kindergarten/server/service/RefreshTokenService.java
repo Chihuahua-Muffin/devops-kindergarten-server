@@ -28,8 +28,14 @@ public class RefreshTokenService {
 	private final UserRepository userRepository;
 
 	@Transactional(readOnly = true)
-	public Optional<RefreshToken> findByToken(String token) {
-		return refreshTokenRepository.findByToken(token);
+	public RefreshToken findByToken(String token) {
+		return refreshTokenRepository.findByToken(token).orElseThrow(() -> new TokenRefreshException(token,
+			"RefreshToken이 존재하지 않습니다."));
+	}
+
+	@Transactional(readOnly = true)
+	public long getRefreshTokenExp(String token) {
+		return findByToken(token).getExpiryDate().getEpochSecond();
 	}
 
 	@Transactional
@@ -47,8 +53,7 @@ public class RefreshTokenService {
 
 	@Transactional
 	public User verifyExpirationAndGetUser(String token) {
-		RefreshToken refreshToken = findByToken(token).orElseThrow(() -> new TokenRefreshException(token,
-			"RefreshToken이 존재하지 않습니다."));
+		RefreshToken refreshToken = findByToken(token);
 		if (refreshToken.getExpiryDate().compareTo(Instant.now()) < 0) {
 			refreshTokenRepository.deleteById(refreshToken.getId());
 			throw new TokenRefreshException(refreshToken.getToken(), "토큰이 만료되었습니다. 새롭게 로그인해 주세요.");
