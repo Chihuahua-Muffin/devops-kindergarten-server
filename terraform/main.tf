@@ -8,6 +8,10 @@ variable "userId" {
     default = "dId"
 }
 
+# variable "getKey" {
+#     type = string
+# }
+
 resource "aws_key_pair" "key" {
     key_name = "key"
     public_key = file("./ec2Key.pub")
@@ -21,9 +25,8 @@ resource "aws_instance" "web" {
     security_groups = ["launch-wizard-3"]
     key_name = aws_key_pair.key.key_name
     tags = {
-        // 유저 정보 얻어오면 해당 코드로 변경한다.
-        // Name = "${var.userName}-${var.userName}-ec2"
-        Name = "devops-kindergarten-student-ec2"
+        Name = "${var.userName}-${var.userId}-ec2"
+        # Name = "devops-kindergarten-student-ec2"
     }
 }
 
@@ -37,7 +40,7 @@ resource "null_resource" "start" {
         private_key = file("./ec2Key")
         host = aws_instance.web.public_ip
         // 연결이 안 될 때를 위해 설정
-        timeout = "5m"
+        timeout = "1m"
     }
 
     provisioner "remote-exec" {
