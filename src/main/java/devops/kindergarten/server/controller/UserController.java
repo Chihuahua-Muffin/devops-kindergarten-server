@@ -1,7 +1,7 @@
 package devops.kindergarten.server.controller;
 
 import devops.kindergarten.server.domain.User;
-import devops.kindergarten.server.dto.UserDto;
+import devops.kindergarten.server.dto.InstanceIPDto;
 import devops.kindergarten.server.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -10,10 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-
-import java.util.List;
 
 @Api(tags = {"회원가입 관련 컨트롤러"})
 @RestController
@@ -43,5 +39,10 @@ public class UserController {
 	public ResponseEntity<Long> delete(@PathVariable Long id) {
 		userService.delete(id);
 		return ResponseEntity.ok(id);
+	}
+
+	@PutMapping("/api/user/{id}/ip")
+	public ResponseEntity<String> setUserInstanceIp(@PathVariable Long id, @RequestBody InstanceIPDto ipDto) {
+		return ResponseEntity.ok(userService.setInstanceIp(id, ipDto));
 	}
 }
