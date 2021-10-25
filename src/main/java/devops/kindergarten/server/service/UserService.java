@@ -2,6 +2,8 @@ package devops.kindergarten.server.service;
 
 import devops.kindergarten.server.domain.Authority;
 import devops.kindergarten.server.domain.User;
+import devops.kindergarten.server.dto.InstanceIPDto;
+import devops.kindergarten.server.dto.SignupDto;
 import devops.kindergarten.server.dto.UserDto;
 import devops.kindergarten.server.exception.custom.SignUpException;
 import devops.kindergarten.server.exception.custom.UserNotFoundException;
@@ -40,20 +42,20 @@ public class UserService {
 	}
 
 	@Transactional
-	public User signup(UserDto userDto) {
-		if (userRepository.findOneWithAuthoritiesByUsername(userDto.getUsername()).orElse(null) != null) {
+	public User signup(SignupDto signupDto) {
+		if (userRepository.findOneWithAuthoritiesByUsername(signupDto.getUsername()).orElse(null) != null) {
 			throw new SignUpException("이미 가입한 회원이 있습니다.");
 		}
 
 		Authority authority = Authority.builder()
-			.authorityName(userDto.getStatus())
+			.authorityName(signupDto.getStatus())
 			.build();
 
 		User user = User.builder()
-			.username(userDto.getUsername())
-			.password(passwordEncoder.encode(userDto.getPassword()))
-			.email(userDto.getEmail())
-			.name(userDto.getName())
+			.username(signupDto.getUsername())
+			.password(passwordEncoder.encode(signupDto.getPassword()))
+			.email(signupDto.getEmail())
+			.name(signupDto.getName())
 			.authorities(Collections.singleton(authority))
 			.build();
 
@@ -75,5 +77,12 @@ public class UserService {
 		User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 		userRepository.delete(user);
 		return id;
+	}
+
+	@Transactional
+	public String setInstanceIp(Long userId, InstanceIPDto ipDto) {
+		User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+		user.setInstanceIP(ipDto.getPublicIp());
+		return ipDto.getPublicIp();
 	}
 }
