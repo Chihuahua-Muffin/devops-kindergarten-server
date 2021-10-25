@@ -31,3 +31,7 @@ jwt:
   refresh-validity-in-seconds: 1209600 # 2주
 #  token-validity-in-seconds: 20 # 20초
 #  refresh-validity-in-seconds: 40 # 40초
+
+shell:
+  pwd: /Users/seo
+  script-name: hello.sh
