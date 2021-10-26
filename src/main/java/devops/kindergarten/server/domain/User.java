@@ -38,6 +38,9 @@ public class User {
 	@OneToOne(mappedBy = "user")
 	private RefreshToken refreshToken;
 
+	@OneToMany(mappedBy = "user")
+	List<Progress> lectureProgress = new ArrayList<>();
+
 	@ManyToMany
 	@JoinTable(
 		name = "user_authority",
