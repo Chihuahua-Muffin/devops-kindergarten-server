@@ -50,17 +50,20 @@ public class UserController {
 		return ResponseEntity.ok(id);
 	}
 
+	@ApiOperation(value = "해당 유저의 인스턴스 IP를 변경 관련", notes = "인스턴스를 생성하는 Script 에서 실행할 API 이다.")
 	@PutMapping("/api/user/{id}/ip")
 	public ResponseEntity<String> setUserInstanceIp(@PathVariable Long id, @RequestBody InstanceIPDto ipDto) {
 		return ResponseEntity.ok(userService.setInstanceIp(id, ipDto));
 	}
 
-	@PostMapping("/api/user/{id}/lecture")
+	@ApiOperation(value = "해당 유저의 실습 진행도 수정 관련", notes = "실습 진행하면서 유저의 진행도를 업데이트할 때 사용")
+	@PutMapping("/api/user/{id}/lecture")
 	public ResponseEntity<ProgressResponseDto> setLectureProgress(@PathVariable Long id,
 		@RequestBody ProgressRequestDto requestDto) {
 		return ResponseEntity.ok(progressService.updateLectureProgress(id, requestDto));
 	}
 
+	@ApiOperation(value = "해당 유저의 전체 실습 진행도 관련", notes = "실습 페이지에서 사용하면서 유저의 진행도를 파악하기 위함이다.")
 	@GetMapping("/api/user/{id}/lecture")
 	public ResponseEntity<Map<Long, ProgressResponseDto>> getUserLectureProgresses(@PathVariable Long id) {
 		return ResponseEntity.ok(progressService.getLectureProgresses(id));
