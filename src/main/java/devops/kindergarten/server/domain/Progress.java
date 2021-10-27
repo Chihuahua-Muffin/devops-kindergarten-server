@@ -29,6 +29,9 @@ public class Progress {
 	@Column(name = "lecture_id")
 	Long lectureId;
 
+	@Column(name = "success_count")
+	int count;
+
 	@Column(name = "rate")
 	int progressRate;
 
@@ -41,15 +44,19 @@ public class Progress {
 		this.progressRate = progressRate;
 	}
 
+	public void setCount(int count) {
+		this.count = count;
+	}
 	public void setLectureId(Long lectureId) {
 		this.lectureId = lectureId;
 	}
 
-	public static Progress createProgress(User user, Long lectureId, int progressRate) {
+	public static Progress createProgress(User user, Long lectureId, int progressRate, int count) {
 		Progress progress = new Progress();
 		progress.setUser(user);
 		progress.setLectureId(lectureId);
 		progress.setProgressRate(progressRate);
+		progress.setCount(count);
 		return progress;
 	}
 }
