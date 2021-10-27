@@ -30,7 +30,7 @@ public class ProgressService {
 		Progress progress;
 		if (optionalProgress.isEmpty()) {
 			progress = Progress.createProgress(user, progressRequestDto.getLectureId(),
-				progressRequestDto.getProgressRate());
+				progressRequestDto.getProgressRate(), progressRequestDto.getCount());
 			progressRepository.save(progress);
 		} else {
 			progress = optionalProgress.get();

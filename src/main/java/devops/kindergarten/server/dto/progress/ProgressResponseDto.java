@@ -9,11 +9,13 @@ public class ProgressResponseDto {
 	Long progressId;
 	Long lectureId;
 	int progressRate;
+	int count;
 
 	public ProgressResponseDto(Progress progress) {
 		userId = progress.getUser().getId();
 		progressId = progress.getId();
 		lectureId = progress.getLectureId();
 		progressRate = progress.getProgressRate();
+		count = progress.getCount();
 	}
 }

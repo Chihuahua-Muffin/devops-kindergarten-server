@@ -8,9 +8,11 @@ import lombok.NoArgsConstructor;
 public class ProgressRequestDto {
 	private Long lectureId;
 	private int progressRate;
+	private int count;
 
-	public ProgressRequestDto(Long lectureId, int progressRate) {
+	public ProgressRequestDto(Long lectureId, int progressRate, int count) {
 		this.lectureId = lectureId;
 		this.progressRate = progressRate;
+		this.count = count;
 	}
 }
