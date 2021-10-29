@@ -32,8 +32,14 @@ public class User {
 	@Column(name = "password")
 	private String password;
 
+	@Column(name = "instance_ip")
+	private String instanceIP;
+
 	@OneToOne(mappedBy = "user")
 	private RefreshToken refreshToken;
+
+	@OneToMany(mappedBy = "user")
+	List<Progress> lectureProgress = new ArrayList<>();
 
 	@ManyToMany
 	@JoinTable(
@@ -49,6 +55,9 @@ public class User {
 	@OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
 	private List<Post> postList = new ArrayList<>();
 
+	public void setInstanceIP(String instanceIP){
+		this.instanceIP = instanceIP;
+	}
 	public User(String subject, Collection<? extends GrantedAuthority> authorities) {
 		this.username = subject;
 		this.authorities = new HashSet<>((Collection<? extends Authority>)authorities);

@@ -8,6 +8,7 @@ import devops.kindergarten.server.jwt.TokenProvider;
 import devops.kindergarten.server.jwt.UserDetailsImpl;
 import devops.kindergarten.server.service.RefreshTokenService;
 import devops.kindergarten.server.service.UserService;
+import devops.kindergarten.server.util.ShUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class AuthController {
 	private final AuthenticationManagerBuilder authenticationManagerBuilder;
 	private final UserService userService;
 	private final RefreshTokenService refreshTokenService;
+	private final ShUtil shUtil;
 
 	@ApiOperation(value = "로그인 기능", notes = "로그인하는데 사용된다.")
 	@PostMapping("/api/login")
@@ -62,8 +64,10 @@ public class AuthController {
 
 	@ApiOperation(value = "회원가입 기능", notes = "회원가입하는데 사용된다.")
 	@PostMapping("/api/signup")
-	public ResponseEntity<User> signup(@Valid @RequestBody UserDto userDto) {
-		return ResponseEntity.ok(userService.signup(userDto));
+	public ResponseEntity<UserDto> signup(@Valid @RequestBody SignupDto signupDto) {
+		User user = userService.signup(signupDto);
+		shUtil.executeCommand(user.getId());
+		return ResponseEntity.ok(new UserDto(user));
 	}
 
 	@PostMapping("/api/refresh")
