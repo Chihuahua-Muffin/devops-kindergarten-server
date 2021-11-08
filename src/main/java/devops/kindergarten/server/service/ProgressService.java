@@ -35,6 +35,7 @@ public class ProgressService {
 		} else {
 			progress = optionalProgress.get();
 			progress.setProgressRate(progressRequestDto.getProgressRate());
+			progress.setCount(progressRequestDto.getCount());
 		}
 		return new ProgressResponseDto(progress);
 	}
