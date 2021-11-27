@@ -66,7 +66,7 @@ public class AuthController {
 	@PostMapping("/api/signup")
 	public ResponseEntity<UserDto> signup(@Valid @RequestBody SignupDto signupDto) {
 		User user = userService.signup(signupDto);
-		shUtil.executeCommand(user.getId());
+		shUtil.executeCommand(user.getUsername(), user.getId());
 		return ResponseEntity.ok(new UserDto(user));
 	}
 

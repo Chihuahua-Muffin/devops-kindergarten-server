@@ -19,7 +19,8 @@ terraform apply student.tfplan
 piip=`cat terraform.tfstate | grep "private_ip\""`
 puip=`cat terraform.tfstate | grep "public_ip\""`
 
-curl -d "privateIp=${piip}&publicIp=${puip}" -X POST http://localhost:8080/api/register/ip
+#curl -d "privateIp=${piip}&publicIp=${puip}" -X POST http://localhost:8080/api/register/ip
+curl -X PUT -H "Content-Type: application/json; charset=utf-8" -d '{"userId":'"$2"', "publicIp":'"$puip"'}' http://localhost:8080/api/user/{$2}/ip
 
 rm terraform.tfstate
 rm terraform.tfstate.backup

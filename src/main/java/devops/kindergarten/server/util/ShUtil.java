@@ -22,8 +22,8 @@ public class ShUtil {
 	}
 
 	@Async
-	public void executeCommand(Long userId) {
-		String cmd = String.format("%s/%s %s", pwd, scriptName, userId.toString());
+	public void executeCommand(String username, Long userId) {
+		String cmd = String.format("%s/%s %s %s", pwd, scriptName, username, userId.toString());
 		String[] callCmd = {"/bin/bash", "-c", cmd};
 		ProcessBuilder pb = new ProcessBuilder(callCmd);
 		pb.redirectErrorStream(true);
