@@ -56,6 +56,12 @@ public class UserController {
 		return ResponseEntity.ok(userService.setInstanceIp(id, ipDto));
 	}
 
+	@ApiOperation(value = "해당 유저의 인스턴스 IP를 읽는 기능", notes = "실습 페이지에서 해당 유저의 인스턴스의 IP를 불러올 때 사용한다.")
+	@GetMapping("/api/user/{id}/ip")
+	public ResponseEntity<String> getUserInstanceIp(@PathVariable Long id) {
+		return ResponseEntity.ok(userService.getInstanceIp(id));
+	}
+
 	@ApiOperation(value = "해당 유저의 실습 진행도 수정 관련", notes = "실습 진행하면서 유저의 진행도를 업데이트할 때 사용")
 	@PutMapping("/api/user/{id}/lecture")
 	public ResponseEntity<ProgressResponseDto> setLectureProgress(@PathVariable Long id,

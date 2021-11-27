@@ -82,7 +82,13 @@ public class UserService {
 	@Transactional
 	public String setInstanceIp(Long userId, InstanceIPDto ipDto) {
 		User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
-		user.setInstanceIP(ipDto.getPublicIp());
+		user.setInstanceIP("http://" +ipDto.getPublicIp()+":3000");
 		return ipDto.getPublicIp();
+	}
+
+	@Transactional(readOnly = true)
+	public String getInstanceIp(Long userId) {
+		User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+		return user.getInstanceIP();
 	}
 }

@@ -70,5 +70,6 @@ public class User {
 		this.email = email;
 		this.password = password;
 		this.authorities = authorities;
+		this.setInstanceIP("");
 	}
 }
