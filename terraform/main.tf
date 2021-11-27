@@ -13,20 +13,20 @@ variable "userId" {
 # }
 
 resource "aws_key_pair" "key" {
-    key_name = "key"
+    key_name = "${var.userId}-key"
     public_key = file("./ec2Key.pub")
 }
 
 resource "aws_instance" "web" {
+    # name = "${var.userName}-${var.userId}-ec2"
     // amazon-linux2의 ami
     ami = "ami-0e4a9ad2eb120e054"
     instance_type = "t2.micro"
     // 보안 그룹 이름
     security_groups = ["launch-wizard-3"]
-    key_name = aws_key_pair.key.key_name
+    key_name = "${var.userId}-key"
     tags = {
         Name = "${var.userName}-${var.userId}-ec2"
-        # Name = "devops-kindergarten-student-ec2"
     }
 }
 
@@ -40,7 +40,7 @@ resource "null_resource" "start" {
         private_key = file("./ec2Key")
         host = aws_instance.web.public_ip
         // 연결이 안 될 때를 위해 설정
-        timeout = "1m"
+        timeout = "5m"
     }
 
     provisioner "remote-exec" {
